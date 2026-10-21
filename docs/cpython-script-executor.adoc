@@ -95,12 +95,116 @@ a|Controls behavior if a variable specified in *Python Variables to Get* was not
 |When enabled, appends the Pandas DataFrame's index as an additional column in the output stream. Useful when the index contains meaningful data, such as a time series timestamp, categorical label, or auto-incrementing key.
 |===
 
-== Data Passing & Context
+== Data Type Conversions
 
-* **Input Data:** Hop rows are exposed to CPython as native data structures or a Pandas DataFrame.
-* **Output Data:** Fields generated or modified in Python can be extracted back into the Hop pipeline stream.
+Apache Hop and Python map data types during socket transfers as follows:
 
-== Usage Notes
+[width="100%",cols="25%,35%,40%",options="header"]
+|===
+|Hop Value Type |Java Type |Python / Pandas `dtype`
 
-1. Ensure standard CPython runtime and dependencies are accessible in the execution environment where Hop is running.
-2. For large datasets, process data in chunks or leverage DataFrame operations to optimize performance.
+|`Integer`
+|`java.lang.Long` (64-bit signed)
+|`int64` (or `Int64` nullable)
+
+|`Number`
+|`java.lang.Double` (64-bit IEEE 754)
+|`float64`
+
+|`String`
+|`java.lang.String`
+|`object` / `string`
+
+|`Boolean`
+|`java.lang.Boolean`
+|`bool` / `boolean`
+
+|`Date` / `Timestamp`
+|`java.util.Date` / `java.sql.Timestamp`
+|`datetime64[ns]`
+
+|`Binary`
+|`byte[]`
+|`bytes`
+
+|`<null>`
+|`null`
+|`NaN`, `None`, or `pd.NA`
+|===
+
+[IMPORTANT]
+====
+Hop integers are always 64-bit `Long`. When constructing or altering integer columns in your Python script to be sent back to Hop, ensure they do not truncate into 32-bit integers, or let Pandas default them to `int64`.
+====
+
+== Example: Feature Engineering with Pandas
+
+=== Scenario
+An upstream transform named **Read Orders** sends raw e-commerce orders into the CPython transform. We want to clean missing prices, calculate high-value order flags, and compute an order total score.
+
+=== 1. Configure Input Frames
+In the **Configure** tab, under *Input frames*:
+
+* **Step name:** `Read Orders`
+* **Pandas frame name:** `orders_df`
+
+=== 2. Write the Script
+Under *Manual Python Script*:
+
+[source,python]
+----
+import pandas as pd
+import numpy as np
+
+# 1. The input frame is automatically available as a pandas.DataFrame
+df = orders_df.copy()
+
+# 2. Clean missing numerical values
+df["price"] = df["price"].fillna(0.0)
+df["quantity"] = df["quantity"].fillna(1).astype("int64")
+
+# 3. Create derived features
+df["total_amount"] = df["price"] * df["quantity"]
+df["is_large_order"] = df["total_amount"] >= 500.0
+
+# 4. Filter or prepare the output DataFrame
+processed_orders = df[df["total_amount"] > 0]
+----
+
+=== 3. Configure Output
+* **Python Variables to Get:** `processed_orders`
+* In the **Output Fields** tab, click **Get Frame Fields** to auto-populate the table, or define the fields manually:
+** `order_id` (`Integer`)
+** `customer_id` (`String`)
+** `price` (`Number`)
+** `quantity` (`Integer`)
+** `total_amount` (`Number`)
+** `is_large_order` (`Boolean`)
+
+== Best Practices: Choosing an Execution Mode
+
+[width="100%",cols="20%,40%,40%",options="header"]
+|===
+|Mode |When to Use |Memory & Performance Impact
+
+|`All`
+|Aggregations (e.g., groupby/pivot), training ML models, generating plots, or sorting full datasets.
+|**High memory usage**. Buffers the entire input stream in Hop memory before sending to Python. Avoid on multi-gigabyte streams without *Reservoir sampling*.
+
+|`Batch`
+|Row-level transformations, data enrichment, API lookups, or batch model inferencing on large streams.
+|**Balanced & fast**. Streams chunks of data (e.g., 50,000 rows at a time) through Python, keeping memory usage constant.
+
+|`Row by Row`
+|Strict real-time lookups or sequential row evaluations where state must be preserved record-by-record.
+|**Slowest**. High IPC socket overhead per row. Use only when `Batch` mode is not mathematically viable.
+|===
+
+== Troubleshooting
+
+* **Missing package errors (`ModuleNotFoundError: No module named '...'`)**:
+Verify that your virtual environment is active, or list required packages in the *Python libraries* field so the transform can install them via pip.
+* **Socket broken or timeout error (`BrokenPipeException`)**:
+Typically caused if your Python code calls `sys.exit()` or triggers an unhandled native C-extension segmentation fault. Check the Hop console logs for Python's standard error (`stderr`) stack trace.
+* **`NaN` values turning into zeroes or empty strings**:
+Pandas represents missing numeric data as `np.nan` (floating-point). When mapped back to Hop fields that do not accept nulls, ensure your script explicitly calls `.fillna(...)` or uses nullable Pandas types (`pd.NA`).
