@@ -56,7 +56,7 @@ import java.util.List;
  *
  * @author Mark Hall (mhall{[at]}phalanxdev{[dot]}com)
  */
-@Transform(id = "CPythonScriptExecutor", image = "pylogo.svg", name = "CPython Script Executor", description = "Executes a python script", categoryDescription = "Statistics", documentationUrl = "https://https://github.com/digdash-dev/hop-cpython/blob/main/docs/cpython-script-executor.adoc")
+@Transform(id = "CPythonScriptExecutor", image = "pylogo.svg", name = "CPython Script Executor", description = "Executes a python script", categoryDescription = "Statistics", documentationUrl = "https://github.com/digdash-dev/hop-cpython/blob/main/docs/cpython-script-executor.adoc")
 public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptExecutor, CPythonScriptExecutorData> {
 
 	private static Class<?> PKG = CPythonScriptExecutor.class;
