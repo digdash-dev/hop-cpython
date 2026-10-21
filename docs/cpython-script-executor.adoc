@@ -18,7 +18,7 @@ Use this transform to perform custom scripting, data science transformations, ma
 | Transform name
 | Name of this transform in the pipeline layout.
 
-2+^| Configure
+2+a| pass:[<p align="center">] *Configure* pass:[</p>]
 
 | Number of Rows to Process
 a|Specifies how incoming rows are grouped before being sent to Python:
@@ -60,26 +60,39 @@ a|A table mapping incoming Hop data streams to Pandas DataFrame variable names i
 * **Transform name**: The connected upstream transform providing incoming rows.
 * **Frame name**: The Python variable name under which the rows will be accessible as a `pandas.DataFrame` (e.g., `df`, `orders`, `transactions`). Must be a valid Python identifier. Supports Hop variables.
 
-2+^| Python Script
+2+a| pass:[<p align="center">] *Python Script* pass:[</p>]
 
-2+^| Output Fields
-|===
+|Load Script from File at Runtime
+|When enabled, re-reads the Python script from the path specified in *Script File Location* on every pipeline execution. This allows you to edit and version-control `.py` files externally in your IDE without modifying or re-saving the Hop pipeline. If unchecked, the inline script defined in *Manual Python Script* is executed.
 
-[cols="1,3", options="header"]
-|===
-| Option | Description
+|Script File Location
+|The absolute or relative path to the Python file (`.py`) to execute. Used when *Load Script from File at Runtime* is checked. Supports Hop variables (e.g., `${PROJECT_HOME}/scripts/transform_data.py`).
 
-| Transform name
-| Name of this transform in the pipeline layout.
+|Manual Python Script
+|The inline Python script to execute when not loading from an external file. The script has immediate access to any DataFrames mapped in the *Input frames* table and can define variables, DataFrames, or plots to return downstream.
 
-| Python script / File
-| Option to select whether to execute a script written directly in the dialog or to load an external script file.
+|Python Variables to Get
+|The name of the Python variable(s) to retrieve from the script's namespace (e.g., a DataFrame named `df_out`, or comma-separated variable names like `metric_a, metric_b`). This identifies which Python object holds the resulting data; the actual columns/values are then mapped to the outgoing Hop stream according to the definitions configured in the *Output Fields* tab.
 
-| Script
-| The Python script body to execute for incoming rows.
+|Continue on unset variables
+a|Controls behavior if a variable specified in *Python Variables to Get* was not created or set by the script:
 
-| Frame Variable
-| Name of the variable used to pass Hop rows into a Pandas DataFrame inside the Python context.
+* **Checked**: Emits `null` for the missing field and continues pipeline execution normally.
+* **Unchecked**: Throws an exception (`PythonVariableNotSet`) and halts the transform with an error.
+
+2+a| pass:[<p align="center">] *Output Fields* pass:[</p>]
+
+|Output Fields
+|Defines the schema of fields emitted downstream into the pipeline. Each row defines a field name, its Hop data type (e.g., `String`, `Integer`, `Number`, `Date`), length, precision, and formatting. These field names must match the columns in your resulting Pandas DataFrame or the scalar variables extracted from Python.
+
+|Vars to Fields
+|Automatically populates the *Output Fields* table using the variable name(s) specified in *Python Variables to Get*. Useful when extracting scalar metrics, text values, or generated image plots (assigns binary/image or string types).
+
+|Get Frame Fields
+|Executes a test run of the Python script to inspect the target DataFrame specified in *Python Variables to Get*. It automatically reads the DataFrame's column names and Pandas `dtypes`, mapping them directly into the *Output Fields* table with matching Hop data types.
+
+|Include frame row index as an output field
+|When enabled, appends the Pandas DataFrame's index as an additional column in the output stream. Useful when the index contains meaningful data, such as a time series timestamp, categorical label, or auto-incrementing key.
 |===
 
 == Data Passing & Context
