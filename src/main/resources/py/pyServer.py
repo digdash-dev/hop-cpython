@@ -89,6 +89,8 @@ def runServer():
             if 'use_arrow' in message:
                 global _global_use_arrow
                 _global_use_arrow = message['use_arrow'] and _global_arrow_available
+            else:
+                _global_use_arrow = False
                 
             match command:
                 case 'accept_rows':
