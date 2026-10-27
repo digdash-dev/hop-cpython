@@ -7,16 +7,15 @@ Building
 --------
 The Hop CPython Plugin is built with Maven.
 
-    $ git clone https://github.com/m-a-hall/hop-cpython.git
     $ cd hop-cpython
     $ mvn clean install
 
-This will produce a plugin archive in target/hop-cpython-${version}.zip (e.g., hop-cpython-2.13.0-GA.zip).
+This will produce a plugin archive in target/hop-cpython-${version}.zip (e.g., hop-cpython-2.19.0-GA.zip).
 
 Installation
 ------------
 1. **Install the Plugin:**
-   Extract the generated hop-cpython-2.13.0-GA.zip file into your Apache Hop installation's `/hop/plugins/transforms` folder.
+   Extract the generated hop-cpython-2.19.0-GA.zip file into your Apache Hop installation's `/hop/plugins/transforms` folder.
 
 2. **Set up Python Environment:**
    Create a Python virtual environment and install the required packages:
@@ -45,9 +44,13 @@ The plugin uses a client-server architecture where the Hop pipeline (Java) commu
 
 ![Hop CPython Communication Flow](cpython-diagram.png)
 
+**Auto-Recovery System:**
+To ensure pipeline stability, the Python server singleton is actively monitored. If a bad Python script crashes the Python process or causes a socket death, the session will be automatically disposed of and the server will relaunch.
+You no longer need to restart Apache Hop to recover from fatal Python script errors.
+
 Apache Arrow Support
 -------------------
-Version 2.13.0 adds support for Apache Arrow for high-performance data transfer between Hop and Python. Arrow provides:
+The plugin supports Apache Arrow for high-performance data transfer between Hop and Python. Arrow provides:
 - Significantly faster data transfer for large datasets
 - Zero-copy data exchange
 - Better handling of data types and null values
@@ -63,8 +66,8 @@ Arrow support is enabled by default when available and can be configured in the 
 System Requirements
 ------------------
 - Python 3.6 or higher (Python 2 is no longer supported)
-- Java 17 (not higher)
-- Apache Hop 2.7.0 or later
+- Java 17 or higher
+- Apache Hop 2.19.0 or later
 
 **Required Python packages:**
 - pandas (for data manipulation)
