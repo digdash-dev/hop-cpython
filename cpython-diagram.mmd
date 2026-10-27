@@ -1,4 +1,5 @@
 sequenceDiagram
+    autonumber
     participant Hop as Hop Pipeline
     participant Executor as CPythonScriptExecutor
     participant Session as PythonSession
@@ -6,19 +7,19 @@ sequenceDiagram
     participant Py as Python Environment
 
     Hop->>Executor: Execute pipeline with Python transform
-    Executor->>Session: Create/acquire Python session
+    Executor->>Session: Create/acquire/relaunch Python session
     Session->>Server: Start Python server process
     Server->>Session: Return PID
     
-    alt Data Input
+    opt Data Input
         Executor->>Session: Convert Hop rows to DataFrame
-        Session->>Server: Send DataFrame via socket (JSON+CSV)
+        Session->>Server: Send DataFrame via socket (CSV/Arrow)
         Server->>Py: Create pandas DataFrame
     end
     
     Executor->>Session: Execute Python script
-    Session->>Server: Send script via socket
-    Server->>Py: Execute script in Python environment
+    Session->>Server: Send script & transform ID via socket
+    Server->>Py: Execute script in isolated transform dict
     
     alt Return DataFrame
         Executor->>Session: Request DataFrame
@@ -29,7 +30,7 @@ sequenceDiagram
         Session->>Executor: Convert to Hop rows
     else Return Variables
         Executor->>Session: Request variable(s) value
-        Session->>Server: Request variable(s)
+        Session->>Server: Request variable(s) from transform dict
         Server->>Py: Get variable(s)
         Py->>Server: Return variable(s) value
         Server->>Session: Send variable(s) via socket
@@ -44,3 +45,6 @@ sequenceDiagram
     end
     
     Executor->>Hop: Return processed data
+
+    Hop->>Executor: Pipeline stops / finishes
+    Executor->>Session: Close sockets and dispose()
