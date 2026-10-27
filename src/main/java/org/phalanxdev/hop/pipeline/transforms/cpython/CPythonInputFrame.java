@@ -13,8 +13,8 @@ public class CPythonInputFrame {
 	public CPythonInputFrame() {
 	}
 
-	public CPythonInputFrame(String stepName, String frameName) {
-		this.transformName = stepName;
+	public CPythonInputFrame(String transformName, String frameName) {
+		this.transformName = transformName;
 		this.frameName = frameName;
 	}
 
@@ -22,8 +22,8 @@ public class CPythonInputFrame {
 		return transformName;
 	}
 
-	public void setTransformName(String stepName) {
-		this.transformName = stepName;
+	public void setTransformName(String transformName) {
+		this.transformName = transformName;
 	}
 
 	public String getFrameName() {

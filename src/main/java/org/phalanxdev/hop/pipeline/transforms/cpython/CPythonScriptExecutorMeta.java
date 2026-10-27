@@ -52,7 +52,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Meta class for the CPythonScriptExecutor step
+ * Meta class for the CPythonScriptExecutor transform
  *
  * @author Mark Hall (mhall{[at]}phalanxdev{[dot]}com)
  */
@@ -75,8 +75,8 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	protected static final String PY_VARS_TO_GET_TAG = "py_vars_to_get";
 	protected static final String CONTINUE_ON_UNSET_VARS_TAG = "continue_on_unset_vars";
 	protected static final String SINGLE_FRAME_NAME_PREFIX_TAG = "frame_name";
-	protected static final String INCOMING_STEP_NAMES_TAG = "incoming_step_names";
-	protected static final String SINGLE_INCOMING_STEP_NAME_TAG = "step_name";
+	protected static final String INCOMING_transform_NAMES_TAG = "incoming_transform_names";
+	protected static final String SINGLE_INCOMING_transform_NAME_TAG = "transform_name";
 	protected static final String OUTPUT_FIELDS_TAG = "output_fields";
 	protected static final String SINGLE_OUTPUT_FIELD_TAG = "output_field";
 	protected static final String PYTHON_COMMAND = "python_command";
@@ -84,7 +84,7 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	protected static final String PYTHON_SERVER_ID = "python_server_id";
 
 	/**
-	 * Default prefix for kettle data -> pandas frame name
+	 * Default prefix for hop data -> pandas frame name
 	 */
 	public static final String DEFAULT_FRAME_NAME_PREFIX = "hop_data";
 
@@ -344,16 +344,16 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	}
 
 	/**
-	 * Sets whether the step should or not include input values in the output stream
+	 * Sets whether the transform should or not include input values in the output stream
 	 */
 	public void setIncludeInputAsOutput(boolean s) {
 		includeInputAsOutput = s;
 	}
 
 	/**
-	 * Gets whether the step should or not include input values in the output stream
+	 * Gets whether the transform should or not include input values in the output stream
 	 *
-	 * @return true if step should include input values in output
+	 * @return true if transform should include input values in output
 	 */
 	public boolean isIncludeInputAsOutput() {
 		return includeInputAsOutput;
@@ -440,9 +440,6 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 *
 	 * @param names a list of frame names to use - one for each incoming row set
 	 */
-//  public void setFrameNames(List<String> names) {
-//    frameNames = names;
-//  }
 	public void setInputFrames(List<CPythonInputFrame> inputFrames) {
 		this.inputFrames = inputFrames;
 	}
@@ -454,9 +451,6 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 *
 	 * @return a list of frame names to use - one for each incoming row set
 	 */
-//  public List<String> getFrameNames() {
-//    return frameNames;
-//  }
 	public List<CPythonInputFrame> getInputFrames() {
 		return inputFrames;
 	}
@@ -465,24 +459,20 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 * Set the list of python variables to retrieve. If there is more than one
 	 * variable being retrieved, then each variable will be extracted from python as
 	 * a string, unless it is an image, in which case the image data is retrieved.
-	 * The names of fields output by the step are expected to match the variable
+	 * The names of fields output by the transform are expected to match the variable
 	 * names in this case; furthermore, the user is expected to set the appropriate
-	 * outgoing Kettle field type (this must be binary in the case of image data).
-	 * Note that the step will not know the types of the specified variables before
+	 * outgoing Hop field type (this must be binary in the case of image data).
+	 * Note that the transform will not know the types of the specified variables before
 	 * runtime.
 	 * <p/>
 	 * If there is just one variable being extracted from python, then the output
 	 * fields must match the names of the columns of a pandas data frame (in the
 	 * case that the variable is a data frame), or the name of the variable in the
-	 * case that is not a data frame. In both cases, appropriate Kettle types must
+	 * case that is not a data frame. In both cases, appropriate Hop types must
 	 * be specified by the user.
 	 *
 	 * @param pyVars the list of python variables to retrieve
 	 */
-//  public void setPythonVariablesToGet(List<String> pyVars) {
-//    pyVarsToGet = pyVars;
-//  }
-
 	public void setPyVarsToGet(List<String> pyVars) {
 		pyVarsToGet = pyVars;
 	}
@@ -491,16 +481,16 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 * Get the list of python variables to retrieve. If there is more than one
 	 * variable being retrieved, then each variable will be extracted from python as
 	 * a string, unless it is an image, in which case the image data is retrieved.
-	 * The names of fields output by the step are expected to match the variable
+	 * The names of fields output by the transform are expected to match the variable
 	 * names in this case; furthermore, the user is expected to set the appropriate
-	 * outgoing Kettle field type (this must be binary in the case of image data).
-	 * Note that the step will not know the types of the specified variables before
+	 * outgoing Hop field type (this must be binary in the case of image data).
+	 * Note that the transform will not know the types of the specified variables before
 	 * runtime.
 	 * <p/>
 	 * If there is just one variable being extracted from python, then the output
 	 * fields must match the names of the columns of a pandas data frame (in the
 	 * case that the variable is a data frame), or the name of the variable in the
-	 * case that is not a data frame. In both cases, appropriate Kettle types must
+	 * case that is not a data frame. In both cases, appropriate Hop types must
 	 * be specified by the user.
 	 *
 	 * @return the list of python variables to retrieve
@@ -511,23 +501,19 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 
 	/**
 	 * Set whether to include the pandas data frame row index as an output field, in
-	 * the case where the output of the step is a single pandas data frame. Has no
+	 * the case where the output of the transform is a single pandas data frame. Has no
 	 * affect if multiple variables are being retrieved from python.
 	 *
 	 * @param includeFrameRowIndexAsOutputField true to include the frame row index
 	 *                                          as an output field
 	 */
-//  public void setIncludeFrameRowIndexAsOutputField(boolean includeFrameRowIndexAsOutputField) {
-//    includeRowIndex = includeFrameRowIndexAsOutputField;
-//  }
-
 	public void setIncludeRowIndex(boolean includeFrameRowIndexAsOutputField) {
 		includeRowIndex = includeFrameRowIndexAsOutputField;
 	}
 
 	/**
 	 * Get whether to include the pandas data frame row index as an output field, in
-	 * the case where the output of the step is a single pandas data frame. Has no
+	 * the case where the output of the transform is a single pandas data frame. Has no
 	 * affect if multiple variables are being retrieved from python.
 	 *
 	 * @return true to include the frame row index as an output field
@@ -690,7 +676,7 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 * @param scriptFields         row meta that will hold script only fields
 	 * @param inputPresentInOutput row meta that will hold input fields being copied
 	 * @param infos                the array of info row metas
-	 * @param transformName        the name of the step
+	 * @param transformName        the name of the transform
 	 */
 	protected void determineInputFieldScriptFieldSplit(IRowMeta fullOutputRowMeta, IRowMeta scriptFields,
 			IRowMeta inputPresentInOutput, IRowMeta[] infos, String transformName) {
@@ -761,7 +747,7 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 		return retval;
 	}
 
-	public void clearStepIOMeta() {
+	public void clearTransformIOMeta() {
 		ITransformIOMeta ioMeta = super.getTransformIOMeta();
 		((TransformIOMeta) ioMeta).clearStreams();
 	}
@@ -793,11 +779,11 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	}
 
 	@Override
-	public void searchInfoAndTargetTransforms(List<TransformMeta> steps) {
+	public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
 		List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
 
 		for (IStream stream : targetStreams) {
-			stream.setTransformMeta(TransformMeta.findTransform(steps, (String) stream.getSubject()));
+			stream.setTransformMeta(TransformMeta.findTransform(transforms, (String) stream.getSubject()));
 		}
 	}
 

@@ -58,7 +58,7 @@ import org.phalanxdev.python.PythonSession;
 import org.phalanxdev.python.SessionException;
 
 /**
- * Data class for the CPythonScriptExecutor step
+ * Data class for the CPythonScriptExecutor transform
  *
  * @author Mark Hall (mhall{[at]}phalanxdev{[dot]}com)
  */
@@ -232,7 +232,7 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 
 	/**
 	 * Initialise a lookup on output indexes of any fields being copied from input
-	 * to output. User may re-order output fields in the dialog for this step, so we
+	 * to output. User may re-order output fields in the dialog for this transform, so we
 	 * need the lookup.
 	 */
 	public void initNonScriptOutputIndexLookup() {

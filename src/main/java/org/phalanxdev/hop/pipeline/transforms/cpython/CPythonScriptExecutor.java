@@ -48,21 +48,21 @@ import org.phalanxdev.hop.pipeline.transforms.reservoirsampling.ReservoirSamplin
 import org.phalanxdev.python.PythonSession;
 
 /**
- * Step that executes a python script using CPython. The step can accept 0 or
+ * transform that executes a python script using CPython. The transform can accept 0 or
  * more incoming row sets. Row sets are sent to python as named pandas data
  * frames. Data can be sent to python in batches, as samples, row-by-row or as
  * all available rows.
  * </p>
  * Output can be one or more variables that are set in python after the user's
  * script executes. In the case of a single variable this can be a data frame,
- * in which case the columns of the frame become output fields from this step.
+ * in which case the columns of the frame become output fields from this transform.
  * In the case of multiple variables they are retrieved in string form or as png
- * image data - the step automatically detects if a variable is an image and
- * retrieves it as png. In this mode there is one row output from the step,
+ * image data - the transform automatically detects if a variable is an image and
+ * retrieves it as png. In this mode there is one row output from the transform,
  * where each outgoing field holds the string/serializable value of a single
  * variable.
  * </p>
- * The step requires python 2.7 or 3.4. It also requires the pandas, numpy,
+ * The transform requires python 2.7 or 3.4. It also requires the pandas, numpy,
  * matplotlib and sklearn. The python executable must be available in the user's
  * path.
  *
@@ -346,7 +346,7 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 
 					if (current == null) {
 						throw new HopException(BaseMessages.getString(PKG,
-								"CPythonScriptExecutor.Error.UnableToFindSpecifiedInputStep", transformName)); // $NON-NLS-1$
+								"CPythonScriptExecutor.Error.UnableToFindSpecifiedInputtransform", transformName)); // $NON-NLS-1$
 					}
 					data.incomingRowSets.add(current);
 					infos[i] = associatedRowMeta;
@@ -627,7 +627,7 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 	protected void executeScript(PythonSession session, String pyScript) throws HopException {
 		List<String> outAndErr = session.executeScript(this.getName(), resolve(pyScript));
 
-		// TODO could add another setting to allow the user to specify if the step
+		// TODO could add another setting to allow the user to specify if the transform
 		// should try to continue after a script execution error. Note that ServerUtils
 		// already logs warning messages and strips them from the error output.
 		if (!Utils.isEmpty(outAndErr.get(1))) {

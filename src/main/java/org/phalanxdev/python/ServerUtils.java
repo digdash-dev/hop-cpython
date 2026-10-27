@@ -695,7 +695,7 @@ public class ServerUtils {
    * @param csv        csv data in a String
    * @param rowMeta metadata for the fields in the csv
    * @param numRows    the number of rows of data
-   * @return rows of kettle data
+   * @return rows of Hop data
    * @throws IOException if a problem occurs
    */
   protected static RowMetaAndRows csvToRows(String csv, IRowMeta rowMeta, int numRows) throws IOException {
@@ -768,11 +768,11 @@ public class ServerUtils {
 	  }
 
   /**
-   * Convert a json message containing field metadata to kettle row metadata
+   * Convert a json message containing field metadata to Hop row metadata
    *
    * @param frameName the name of the pandas frame that the metadata is for
    * @param jsonMeta  the json structure containing field metadata
-   * @return the kettle row metadata
+   * @return the Hop row metadata
    * @throws HopException if a problem occurs
    */
   @SuppressWarnings( "unchecked" ) protected static IRowMeta jsonRowMetadataToRowMeta( String frameName,

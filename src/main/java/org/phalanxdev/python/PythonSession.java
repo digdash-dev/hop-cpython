@@ -874,7 +874,7 @@ public class PythonSession {
 	 * the java property or system environment variable pentaho.cpython.command.
 	 *
 	 * @param pythonCommand the python command
-	 * @param vars          Kettle variables
+	 * @param vars          Hop variables
 	 * @param log           logging
 	 * @return true if the server launched successfully
 	 * @throws HopException if there was a problem - missing packages in python, or
@@ -1038,7 +1038,7 @@ public class PythonSession {
 	}
 
 	/**
-	 * Transfer Kettle rows into python as a named pandas data frame
+	 * Transfer Hop rows into python as a named pandas data frame
 	 *
 	 * @param rowMeta         the metadata of the rows
 	 * @param rows            the rows to transfer
@@ -1063,7 +1063,7 @@ public class PythonSession {
 	}
 
 	/**
-	 * Transfer a pandas data frame from python and convert into Kettle rows and
+	 * Transfer a pandas data frame from python and convert into Hop rows and
 	 * metadata
 	 *
 	 * @param frameName       the name of the pandas data frame to get

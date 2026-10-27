@@ -81,7 +81,7 @@ import org.phalanxdev.hop.metadata.CPythonConfig;
 import org.phalanxdev.hop.pipeline.transforms.cpython.CPythonScriptExecutorMeta.ProcessingMode;
 
 /**
- * Dialog for the CPythonScriptExecutor step
+ * Dialog for the CPythonScriptExecutor transform
  *
  * @author Mark Hall (mhall{[at]}phalanxdev{[dot]}com)
  */
@@ -245,14 +245,14 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 
 		// table
 		ColumnInfo[] colinf = new ColumnInfo[] {
-				new ColumnInfo(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.FrameNames.StepName"),
+				new ColumnInfo(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.FrameNames.TransformName"),
 						ColumnInfo.COLUMN_TYPE_CCOMBO, false),
 				new ColumnInfo(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.FrameNames.FrameName"),
 						ColumnInfo.COLUMN_TYPE_TEXT, false) };
 
-		String[] previousSteps = pipelineMeta.getPrevTransformNames(transformName);
-		if (previousSteps != null) {
-			colinf[0].setComboValues(previousSteps);
+		String[] previousTransforms = pipelineMeta.getPrevTransformNames(transformName);
+		if (previousTransforms != null) {
+			colinf[0].setComboValues(previousTransforms);
 		}
 
 		wtvInputFrames = new TableView(variables, wcConfig, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1,
@@ -552,7 +552,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 
 	private void getFrameFields(CPythonScriptExecutorMeta meta) {
 		try {
-			// 1. Gather all incoming fields based on the saved step names in your new POJO
+			// 1. Gather all incoming fields based on the saved transform names in your new POJO
 			IRowMeta incomingMetas = new RowMeta();
 			List<CPythonInputFrame> inputFrames = meta.getInputFrames();
 
@@ -561,7 +561,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 					if (!org.apache.hop.core.util.Utils.isEmpty(frame.getTransformName())) {
 						TransformMeta prevTransform = pipelineMeta.findTransform(frame.getTransformName());
 						if (prevTransform != null) {
-							// Add the fields from this previous step to our master list
+							// Add the fields from this previous transform to our master list
 							incomingMetas.addRowMeta(pipelineMeta.getTransformFields(variables, prevTransform));
 						}
 					}
@@ -1006,16 +1006,16 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 
 		int numNonEmpty = wtvInputFrames.nrNonEmpty();
 		List<CPythonInputFrame> inputFrames = new ArrayList<>();
-		meta.clearStepIOMeta();
+		meta.clearTransformIOMeta();
 		for (int i = 0; i < numNonEmpty; i++) {
 			TableItem item = wtvInputFrames.getNonEmpty(i);
-			String stepName = item.getText(1).trim();
+			String transformName = item.getText(1).trim();
 			String frameName = item.getText(2).trim();
-			if (!org.apache.hop.core.util.Utils.isEmpty(stepName)) {
+			if (!org.apache.hop.core.util.Utils.isEmpty(transformName)) {
 				if (org.apache.hop.core.util.Utils.isEmpty(frameName)) {
 					frameName = CPythonScriptExecutorMeta.DEFAULT_FRAME_NAME_PREFIX + i;
 				}
-				inputFrames.add(new CPythonInputFrame(stepName, frameName));
+				inputFrames.add(new CPythonInputFrame(transformName, frameName));
 
 			}
 		}
