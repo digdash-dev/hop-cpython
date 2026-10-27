@@ -42,7 +42,7 @@ Architecture
 -----------
 The plugin uses a client-server architecture where the Hop pipeline (Java) communicates with a Python process via socket connections. The diagram below illustrates the communication flow:
 
-![Hop CPython Communication Flow](cpython-diagram.png)
+![Hop CPython Communication Flow](docs/images/cpython-diagram.png)
 
 **Auto-Recovery System:**
 To ensure pipeline stability, the Python server singleton is actively monitored. If a bad Python script crashes the Python process or causes a socket death, the session will be automatically disposed of and the server will relaunch.
