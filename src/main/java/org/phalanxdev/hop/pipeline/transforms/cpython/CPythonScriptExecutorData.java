@@ -46,6 +46,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -335,7 +336,6 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 		if (first) {
 			// check for vars that are not defined in output meta
 			for (String v : varsToGet) {
-				// if ( !m_outputMetaIndexLookup.containsKey( v ) ) {
 				if (outputRowMeta.indexOfValue(v) < 0) {
 					varsOrColsNotDefinedInOutputMeta.add(v);
 				}
@@ -374,7 +374,6 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 						Object varVal = session.getVariableValueFromPythonAsPlainString(v);
 						if (outputRowMeta.getValueMeta(outputIndex).getType() != IValueMeta.TYPE_STRING) {
 							varVal = outputRowMeta.getValueMeta(outputIndex)
-									// .convertData( new ValueMeta( v, IValueMeta.TYPE_STRING ), varVal );
 									.convertData(ValueMetaFactory.createValueMeta(v, IValueMeta.TYPE_STRING), varVal);
 						}
 						outputRow[outputIndex] = varVal;
@@ -437,8 +436,6 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 	 */
 	protected static List<Object[]> generateRandomRows(IRowMeta inputMeta, Random r) throws HopException {
 		List<Object[]> rows = new ArrayList<Object[]>(NUM_RANDOM_ROWS);
-		// IValueMeta numericVM = new ValueMeta( "num", IValueMeta.TYPE_NUMBER );
-		// //$NON-NLS-1$
 		IValueMeta numericVM = ValueMetaFactory.createValueMeta("num", IValueMeta.TYPE_NUMBER); //$NON-NLS-1$
 
 		for (int i = 0; i < NUM_RANDOM_ROWS; i++) {
@@ -513,7 +510,7 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 				String script = cPythonScriptExecutorMeta.getScript();
 				if (cPythonScriptExecutorMeta.isLoadScriptAtRuntime()) {
 					String fileName = vars.resolve(cPythonScriptExecutorMeta.getLoadScriptFile());
-					if (org.apache.hop.core.util.Utils.isEmpty(fileName)) {
+					if (Utils.isEmpty(fileName)) {
 						throw new HopException(BaseMessages.getString(PKG,
 								"CPythonScriptExecutorData.Error.ScriptFileDoesNotExist", fileName));
 					}
@@ -523,8 +520,7 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 
 				List<CPythonInputFrame> inputFrames = cPythonScriptExecutorMeta.getInputFrames();
 				int numFrames = (inputFrames != null) ? inputFrames.size() : 0;
-//        List<String> frameNames = cPythonScriptExecutorMeta.getFrameNames();
-				if (org.apache.hop.core.util.Utils.isEmpty(script)) {
+				if (Utils.isEmpty(script)) {
 					throw new HopException(
 							BaseMessages.getString(PKG, "CPythonScriptExecutorData.Error.CantDetermineOutputMeta"));
 				}
@@ -543,8 +539,6 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 
 				session = acquirePySession(requester, config.getPythonCommand(),
 						config.getServerID(), log, vars);
-				//TODO: add it here
-				
 
 				List<List<Object[]>> randomRows = new ArrayList<List<Object[]>>();
 				if (inputMetas != null) {
@@ -561,7 +555,7 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 
 				
 				List<String> outAndErrors = session.executeScript(cPythonScriptExecutorMeta.getName(), script);
-				if (!org.apache.hop.core.util.Utils.isEmpty(outAndErrors.get(1))) {
+				if (!Utils.isEmpty(outAndErrors.get(1))) {
 					throw new HopException(outAndErrors.get(1));
 				}
 				if (!session.checkIfPythonVariableIsSet(varToGet)) {
@@ -616,7 +610,7 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 		}
 		if (!PythonSession.pythonAvailable()) {
 			String pyCheckResults = PythonSession.getPythonEnvCheckResults();
-			if (!org.apache.hop.core.util.Utils.isEmpty(pyCheckResults)) {
+			if (!Utils.isEmpty(pyCheckResults)) {
 				throw new HopException(
 						BaseMessages.getString(PKG, "CPythonScriptExecutor.Error.PythonInitializationProblem") + ":\n\n"
 								+ pyCheckResults);
@@ -662,7 +656,7 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 		} else {
 			if (!PythonSession.initSession(pyCommand, sID, pyPath, log)) {
 				String pyCheckResults = PythonSession.getPythonEnvCheckResults(pyCommand, sID);
-				if (!org.apache.hop.core.util.Utils.isEmpty(pyCheckResults)) {
+				if (!Utils.isEmpty(pyCheckResults)) {
 					throw new HopException(
 							BaseMessages.getString(PKG, "CPythonScriptExecutor.Error.PythonInitializationProblem")
 									+ ":\n\n" + pyCheckResults);

@@ -32,6 +32,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -92,8 +93,6 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 * Default row handling strategy
 	 */
 	public static final String DEFAULT_ROWS_TO_PROCESS = ProcessingMode.ALL.getCode();
-//      BaseMessages.getString(PKG,
-//          "CPythonScriptExecutorDialog.NumberOfRowsToProcess.Dropdown.AllEntry.Label");
 
 	/**
 	 * The script to execute
@@ -122,7 +121,7 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 * The script to load (if loading at runtime)
 	 */
 	@HopMetadataProperty
-	protected String loadScriptFile = ""; //$NON-NLS-1$
+	protected String loadScriptFile = "";
 
 	/**
 	 * The name(s) of the data frames to create in python - one corresponding to
@@ -130,8 +129,6 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 */
 	@HopMetadataProperty
 	private List<CPythonInputFrame> inputFrames;
-//  @HopMetadataProperty(groupKey = "frame_names", key = "frame_name")
-//  protected List<String> frameNames = new ArrayList<>();
 
 	/**
 	 * List of variables to get from python. This should hold exactly one variable
@@ -185,7 +182,7 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 * Random seed for reservoir sampling
 	 */
 	@HopMetadataProperty
-	protected String seed = "1"; //$NON-NLS-1$
+	protected String seed = "1";
 
 	/**
 	 * True if input stream values should be copied to the output stream. Only
@@ -227,31 +224,6 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 */
 	@HopMetadataProperty
 	protected List<CPythonOutputField> outputFields;
-//  protected IRowMeta outputsFields;
-
-//	public void setPythonCommand(String pythonCommand) {
-//		this.pythonCommand = pythonCommand;
-//	}
-//
-//	public String getPythonCommand() {
-//		return pythonCommand;
-//	}
-//
-//	public void setPyPathEntries(String pyPathEntries) {
-//		this.pyPathEntries = pyPathEntries;
-//	}
-//
-//	public String getPyPathEntries() {
-//		return pyPathEntries;
-//	}
-//
-//	public void setServerID(String pyServerID) {
-//		this.serverID = pyServerID;
-//	}
-//
-//	public String getServerID() {
-//		return serverID;
-//	}
 
 	/**
 	 * Get the output structure
@@ -518,9 +490,6 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 *
 	 * @return true to include the frame row index as an output field
 	 */
-//  public boolean getIncludeFrameRowIndexAsOutputField() {
-//    return includeRowIndex;
-//  }
 	public boolean isIncludeRowIndex() {
 		return includeRowIndex;
 	}
@@ -579,8 +548,6 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 					throw new HopTransformException("Error creating value meta", e);
 				}
 			}
-
-//      rowMeta.addRowMeta(outputFields);
 
 			// Check across all input fields to see if they are in the output, and
 			// whether they are binary storage. If binary storage then copy over the
@@ -659,7 +626,6 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 			}
 		} else {
 			for (String varName : pyVarsToGet) {
-				// IValueMeta vm = new ValueMeta( varName, IValueMeta.TYPE_STRING );
 				IValueMeta vm = ValueMetaFactory.createValueMeta(varName, IValueMeta.TYPE_STRING);
 				vm.setOrigin(transformName);
 				rowMeta.addValueMeta(vm);
@@ -710,7 +676,7 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 		inputFrames = new ArrayList<>();
 		continueOnUnsetVars = false;
 		pyVarsToGet = new ArrayList<>();
-		script = BaseMessages.getString(PKG, "CPythonScriptExecutorMeta.InitialScriptText"); //$NON-NLS-1$
+		script = BaseMessages.getString(PKG, "CPythonScriptExecutorMeta.InitialScriptText");
 		configName = "";
 		configSelectionIndex = -1;
 	}
@@ -718,7 +684,7 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	protected String varListToString() {
 		StringBuilder b = new StringBuilder();
 		for (String v : pyVarsToGet) {
-			if (!org.apache.hop.core.util.Utils.isEmpty(v.trim())) {
+			if (!Utils.isEmpty(v.trim())) {
 				b.append(v.trim()).append(",");
 			}
 		}
@@ -734,7 +700,7 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 		pyVarsToGet.clear();
 		String[] vars = list.split(",");
 		for (String v : vars) {
-			if (!org.apache.hop.core.util.Utils.isEmpty(v.trim())) {
+			if (!Utils.isEmpty(v.trim())) {
 				pyVarsToGet.add(v.trim());
 			}
 		}
@@ -824,8 +790,8 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 			IHopMetadataProvider metadataProvider) {
 		CheckResult cr;
 
-		if (org.apache.hop.core.util.Utils.isEmpty(getScript())
-				&& org.apache.hop.core.util.Utils.isEmpty(getLoadScriptFile())) {
+		if (Utils.isEmpty(getScript())
+				&& Utils.isEmpty(getLoadScriptFile())) {
 			cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR,
 					BaseMessages.getString(PKG, "CPythonScriptExecutor.Error.NoScriptProvided"), transformMeta);
 		} else {

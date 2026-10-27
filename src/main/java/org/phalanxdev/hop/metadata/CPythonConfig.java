@@ -34,18 +34,6 @@ public class CPythonConfig extends HopMetadataBase {
 	@HopMetadataProperty
 	private String name;
 	
-//	@GuiWidgetElement(
-//	        id = "libs",
-//	        order = "02",
-//	        label = "i18n::CPythonConfigEditor.Libs.Label",
-//	        toolTip = "i18n::CPythonConfigEditor.Libs.Tooltip",
-//	        type = GuiElementType.TEXT,
-//	        variables = true,
-//	        parentId = GUI_PLUGIN_ID
-//	)
-//	@HopMetadataProperty
-//	private String libs;
-//	
 	/**
 	 * User-supplied path to python executable. If not specified, then we use the
 	 * default python in the path

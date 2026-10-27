@@ -30,6 +30,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -107,10 +108,9 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 	private Button wbReservoirSampling;
 	// options group
 	private MetaSelectionLine<CPythonConfig> wConfigSelection;
-	private Label wlIncludeInputAsOutput, wlContinueOnUnsetVars, wlLibraries, //wlPythonCommand, wlPyPathEntries, wlPyServerID,
-			wlUseArrow;
+	private Label wlIncludeInputAsOutput, wlContinueOnUnsetVars, wlLibraries, wlUseArrow;
 	private Button wbIncludeInputAsOutput, wbContinueOnUnsetVars, wbUseArrow;
-	private TextVar wLibraries; //wtvPythonCommand, wtvPyPathEntries, wtvPyServerID;
+	private TextVar wLibraries;
 	// table
 	private TableView wtvInputFrames;
 
@@ -141,8 +141,6 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 	private static final int FIRST_PROMPT_RIGHT_PERCENTAGE = 55;
 	private static final int SECOND_LABEL_RIGHT_PERCENTAGE = 65;
 	private static final int SECOND_PROMPT_RIGHT_PERCENTAGE = 80;
-	// private static final int MARGIN = PropsUi.getMargin(); // Const.MARGIN;
-	// private static int MIDDLE;
 
 	protected CPythonScriptExecutorMeta inputMeta;
 	protected CPythonScriptExecutorMeta originalMeta;
@@ -162,6 +160,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 		}
 	};
 
+	@SuppressWarnings("rawtypes")
 	public CPythonScriptExecutorDialog(Shell parent, IVariables variables, Object inMeta, PipelineMeta tr,
 			String sname) {
 		super(parent, variables, (BaseTransformMeta) inMeta, tr, sname);
@@ -187,10 +186,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 
 		wctfContainer = new CTabFolder(shell, SWT.BORDER);
 		PropsUi.setLook(wctfContainer, Props.WIDGET_STYLE_TAB);
-		if (!EnvironmentUtils.getInstance().isWeb()) {
-			wctfContainer.setSimple(false);
-		}
-
+		
 		addConfigureTab();
 		addScriptTab();
 		addFieldsTab();
@@ -277,7 +273,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 
 	private void addScriptTab() {
 		wctiScript = new CTabItem(wctfContainer, SWT.NONE);
-		wctiScript.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.ScriptTab.TabTitle")); //$NON-NLS-1$
+		wctiScript.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.ScriptTab.TabTitle")); 
 		wcScript = new Composite(wctfContainer, SWT.NONE);
 		PropsUi.setLook(wcScript);
 		FormLayout scriptLayout = new FormLayout();
@@ -287,7 +283,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 
 		wlLoadScriptFile = new Label(wcScript, SWT.RIGHT);
 		PropsUi.setLook(wlLoadScriptFile);
-		wlLoadScriptFile.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.LoadScript.Label")); //$NON-NLS-1$
+		wlLoadScriptFile.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.LoadScript.Label")); 
 		wlLoadScriptFile.setLayoutData(getFirstLabelFormData());
 
 		wbLoadScriptFile = new Button(wcScript, SWT.CHECK);
@@ -323,7 +319,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 
-				if (!org.apache.hop.core.util.Utils.isEmpty(wtvScriptLocation.getText())) {
+				if (!Utils.isEmpty(wtvScriptLocation.getText())) {
 					dialog.setFileName(variables.resolve(wtvScriptLocation.getText()));
 				}
 
@@ -405,7 +401,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 			public void focusLost(FocusEvent e) {
 				super.focusLost(e);
 				String currVars = wtvPyVarsToGet.getText();
-				if (!org.apache.hop.core.util.Utils.isEmpty(currVars)) {
+				if (!Utils.isEmpty(currVars)) {
 					List<String> varList = stringToList(currVars);
 					wbGetFields.setEnabled(varList.size() == 1);
 					wbIncludeRowIndex.setEnabled(varList.size() == 1);
@@ -435,7 +431,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 	private void addFieldsTab() {
 		// --- fields tab
 		wctiFields = new CTabItem(wctfContainer, SWT.NONE);
-		wctiFields.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.FieldsTab.TabTitle")); //$NON-NLS-1$
+		wctiFields.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.FieldsTab.TabTitle")); 
 		wcFields = new Composite(wctfContainer, SWT.NONE);
 		PropsUi.setLook(wcFields);
 		FormLayout fieldsLayout = new FormLayout();
@@ -444,7 +440,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 		wcFields.setLayout(fieldsLayout);
 
 		wlOutputFields = new Label(wcFields, SWT.LEFT);
-		wlOutputFields.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.OutFields.Label")); //$NON-NLS-1$
+		wlOutputFields.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.OutFields.Label")); 
 		PropsUi.setLook(wlOutputFields);
 		fd = new FormData();
 		fd.left = new FormAttachment(0, 0);
@@ -454,9 +450,9 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 		lastControl = wlOutputFields;
 
 		wbVarsToFields = new Button(wcFields, SWT.PUSH);
-		wbVarsToFields.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.VarsToFields.Button")); //$NON-NLS-1$
+		wbVarsToFields.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.VarsToFields.Button"));
 		wbVarsToFields
-				.setToolTipText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.VarsToFields.Button.TipText")); //$NON-NLS-1$
+				.setToolTipText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.VarsToFields.Button.TipText"));
 		fd = new FormData();
 		fd.bottom = new FormAttachment(100, -margin * 2);
 		fd.left = new FormAttachment(0, 0);
@@ -509,7 +505,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 						ColumnInfo.COLUMN_TYPE_TEXT, false),
 				new ColumnInfo(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.OutFields.Type"),
 						ColumnInfo.COLUMN_TYPE_CCOMBO,
-						/* ValueMeta.getAllTypes() */ ValueMetaFactory.getAllValueMetaNames(), false) };
+						ValueMetaFactory.getAllValueMetaNames(), false) };
 
 		wtvOutputFields = new TableView(variables, wcFields, SWT.FULL_SELECTION | SWT.MULTI, colinf2, 1,
 				simpleModifyListener, props);
@@ -558,7 +554,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 
 			if (inputFrames != null) {
 				for (CPythonInputFrame frame : inputFrames) {
-					if (!org.apache.hop.core.util.Utils.isEmpty(frame.getTransformName())) {
+					if (!Utils.isEmpty(frame.getTransformName())) {
 						TransformMeta prevTransform = pipelineMeta.findTransform(frame.getTransformName());
 						if (prevTransform != null) {
 							// Add the fields from this previous transform to our master list
@@ -891,7 +887,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 		wbContinueOnUnsetVars.setSelection(meta.isContinueOnUnsetVars());
 
 		setItemText(wLibraries, meta.getLibraries());
-		wstcScriptEditor.setText(meta.getScript() == null ? "" : meta.getScript()); //$NON-NLS-1$
+		wstcScriptEditor.setText(meta.getScript() == null ? "" : meta.getScript());
 		wbLoadScriptFile.setSelection(meta.isLoadScriptAtRuntime());
 		setItemText(wtvScriptLocation, meta.getLoadScriptFile());
 		wbIncludeRowIndex.setSelection(meta.isIncludeRowIndex());
@@ -914,7 +910,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 			if (inputFrames != null) {
 				try {
 					for (CPythonInputFrame frame : inputFrames) {
-						if (!org.apache.hop.core.util.Utils.isEmpty(frame.getTransformName())) {
+						if (!Utils.isEmpty(frame.getTransformName())) {
 							TransformMeta prevTransform = pipelineMeta.findTransform(frame.getTransformName());
 							if (prevTransform != null) {
 								incomingMetas.addRowMeta(pipelineMeta.getTransformFields(variables, prevTransform));
@@ -938,9 +934,9 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 		}
 
 		String vars = wtvPyVarsToGet.getText();
-		if (!org.apache.hop.core.util.Utils.isEmpty(vars)) {
+		if (!Utils.isEmpty(vars)) {
 			for (String var : vars.split(",")) {
-				if (!org.apache.hop.core.util.Utils.isEmpty(var.trim())) {
+				if (!Utils.isEmpty(var.trim())) {
 					TableItem item = new TableItem(wtvOutputFields.table, SWT.NONE);
 					item.setText(1, var.trim());
 					item.setText(2, "String");
@@ -956,7 +952,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 	private List<String> stringToList(String list) {
 		List<String> result = new ArrayList<String>();
 		for (String s : list.split(",")) {
-			if (!org.apache.hop.core.util.Utils.isEmpty(s.trim())) {
+			if (!Utils.isEmpty(s.trim())) {
 				result.add(s.trim());
 			}
 		}
@@ -1011,8 +1007,8 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 			TableItem item = wtvInputFrames.getNonEmpty(i);
 			String transformName = item.getText(1).trim();
 			String frameName = item.getText(2).trim();
-			if (!org.apache.hop.core.util.Utils.isEmpty(transformName)) {
-				if (org.apache.hop.core.util.Utils.isEmpty(frameName)) {
+			if (!Utils.isEmpty(transformName)) {
+				if (Utils.isEmpty(frameName)) {
 					frameName = CPythonScriptExecutorMeta.DEFAULT_FRAME_NAME_PREFIX + i;
 				}
 				inputFrames.add(new CPythonInputFrame(transformName, frameName));
@@ -1028,7 +1024,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 			TableItem item = wtvOutputFields.getNonEmpty(i);
 			String name = item.getText(1).trim();
 			String type = item.getText(2).trim();
-			if (!org.apache.hop.core.util.Utils.isEmpty(name) && !org.apache.hop.core.util.Utils.isEmpty(type)) {
+			if (!Utils.isEmpty(name) && !Utils.isEmpty(type)) {
 				outFields.add(new CPythonOutputField(name, type));
 			}
 		}
@@ -1056,7 +1052,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 		wbScriptBrowse.setEnabled(wbLoadScriptFile.getSelection());
 
 		String currVars = wtvPyVarsToGet.getText();
-		if (!org.apache.hop.core.util.Utils.isEmpty(currVars)) {
+		if (!Utils.isEmpty(currVars)) {
 			List<String> varList = stringToList(currVars);
 			wbGetFields.setEnabled(varList.size() == 1);
 			wbIncludeRowIndex.setEnabled(varList.size() == 1);
@@ -1109,7 +1105,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 	 * Ok general method
 	 */
 	private void ok() {
-		if (org.apache.hop.core.util.Utils.isEmpty(wTransformName.getText())) {
+		if (Utils.isEmpty(wTransformName.getText())) {
 			return;
 		}
 

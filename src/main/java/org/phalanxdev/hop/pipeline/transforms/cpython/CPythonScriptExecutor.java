@@ -346,13 +346,13 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 
 					if (current == null) {
 						throw new HopException(BaseMessages.getString(PKG,
-								"CPythonScriptExecutor.Error.UnableToFindSpecifiedInputtransform", transformName)); // $NON-NLS-1$
+								"CPythonScriptExecutor.Error.UnableToFindSpecifiedInputTransform", transformName));
 					}
 					data.incomingRowSets.add(current);
 					infos[i] = associatedRowMeta;
 
 					if (infos[i] == null) {
-						throw new HopException("No row meta for incoming row set " + i); //$NON-NLS-1$
+						throw new HopException("No row meta for incoming row set " + i);
 					}
 				}
 
@@ -406,7 +406,7 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 		}
 
 		if (checkFeedback(getLinesRead())) {
-			logBasic(BaseMessages.getString(PKG, "CPythonScriptExecutor.Message.LineNumber", getLinesRead())); //$NON-NLS-1$
+			logBasic(BaseMessages.getString(PKG, "CPythonScriptExecutor.Message.LineNumber", getLinesRead()));
 		}
 
 		return true;

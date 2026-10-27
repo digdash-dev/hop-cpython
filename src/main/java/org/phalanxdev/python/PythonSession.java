@@ -31,17 +31,17 @@ import org.apache.commons.io.IOUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,6 +58,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 
 /**
@@ -399,11 +400,8 @@ public class PythonSession {
 
 		String script = getLaunchScript(pathEntries, "pyCheck.py", windows);
 
-		// System.err.println("**** Executing shell script: \n\n" + script);
-
 		File scriptFile = File.createTempFile("nixtester_", windows ? ".bat" : ".sh");
 		String scriptPath = scriptFile.getAbsolutePath();
-		// System.err.println("Script path: " + scriptPath);
 
 		FileWriter fwriter = new FileWriter(scriptFile);
 		fwriter.write(script);
@@ -411,14 +409,9 @@ public class PythonSession {
 		fwriter.close();
 
 		scriptFile.setExecutable(true, true);
-//    if ( !windows ) {
-//      Runtime.getRuntime().exec( "chmod u+x " + scriptPath );
-//    }
 		ProcessBuilder builder = new ProcessBuilder(scriptPath);
 		Process pyProcess = builder.start();
 
-		// byte[] outputBytes = pyProcess.getInputStream().readAllBytes();
-		// return new String( outputBytes, StandardCharsets.UTF_8 );
 
 		StringWriter writer = new StringWriter();
 		IOUtils.copy(pyProcess.getInputStream(), writer, StandardCharsets.UTF_8);
@@ -463,12 +456,6 @@ public class PythonSession {
 		fwriter.close();
 
 		scriptFile.setExecutable(true, true);
-//    if ( !windows ) {
-//      if ( log != null ) {
-//        log.logDebug( "Making script executable: chmod u+x " + scriptPath );
-//      }
-//      Runtime.getRuntime().exec( "chmod u+x " + scriptPath );
-//    }
 
 		ProcessBuilder processBuilder = new ProcessBuilder(scriptPath);
 
@@ -618,8 +605,6 @@ public class PythonSession {
 			if (log != null && errorOutput.length() > 0) {
 				log.logError("Python environment check errors:\n" + errorOutput);
 			}
-
-			// ImageIO.write(fig,"png",new File(image1path));
 
 			pythonEnvCheckResults.put(sessionKey, envCheckResults);
 
@@ -894,7 +879,7 @@ public class PythonSession {
 		}
 
 		if (vars != null
-				&& !org.apache.hop.core.util.Utils.isEmpty(vars.getVariable(HOP_CPYTHON_COMMAND_PROPERTY_KEY))) {
+				&& !Utils.isEmpty(vars.getVariable(HOP_CPYTHON_COMMAND_PROPERTY_KEY))) {
 			pythonCommand = vars.getVariable(HOP_CPYTHON_COMMAND_PROPERTY_KEY);
 			File pyExe = new File(pythonCommand);
 			if (!pyExe.exists() || !pyExe.isFile()) {
@@ -988,9 +973,9 @@ public class PythonSession {
 	
 	private boolean isSocketError(Throwable ex) {
 	    while (ex != null) {
-	        if (ex instanceof java.net.SocketException || 
-	            ex instanceof java.io.EOFException || 
-	            ex instanceof java.io.IOException) {
+	        if (ex instanceof SocketException || 
+	            ex instanceof EOFException || 
+	            ex instanceof IOException) {
 	            return true;
 	        }
 	        String msg = ex.getMessage();
@@ -1414,13 +1399,11 @@ public class PythonSession {
 					serverSocket.close();
 					serverSocket = null;
 				}
-//				s_sessionSingleton = null;
 			} catch (Exception ex) {
 			} finally {
 				if (this == s_sessionSingleton) {
 					s_sessionSingleton = null;
 				}
-//				s_sessionSingleton = null;
 				if (sessionKey != null)
 					pythonServers.remove(sessionKey);
 			}

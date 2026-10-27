@@ -31,7 +31,6 @@ import org.apache.arrow.vector.types.pojo.ArrowType;
 import org.apache.arrow.vector.types.pojo.Field;
 import org.apache.arrow.vector.types.pojo.FieldType;
 import org.apache.arrow.vector.types.pojo.Schema;
-import org.apache.arrow.vector.types.DateUnit;
 import org.apache.arrow.vector.types.TimeUnit;
 import org.apache.arrow.vector.types.FloatingPointPrecision;
 import org.apache.arrow.vector.util.Text;
@@ -47,6 +46,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -54,6 +54,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.time.LocalDateTime;
 
 /**
  * Apache Arrow utilities for fast data transfer between Java and Python
@@ -254,7 +255,7 @@ public class ArrowUtils {
 			break;
 		case IValueMeta.TYPE_BIGNUMBER:
 			BigDecimal bd = valueMeta.getBigNumber(value);
-			bd = bd.setScale(10, java.math.RoundingMode.HALF_UP);
+			bd = bd.setScale(10, RoundingMode.HALF_UP);
 			((DecimalVector) vector).setSafe(index, bd);
 			break;
 		case IValueMeta.TYPE_DATE:
@@ -306,9 +307,9 @@ public class ArrowUtils {
 	          return null;
 		case IValueMeta.TYPE_TIMESTAMP:
 			if (arrowObject instanceof Long) {
-				return new java.sql.Timestamp((Long) arrowObject);
-			} else if (arrowObject instanceof java.time.LocalDateTime) {
-				return java.sql.Timestamp.valueOf((java.time.LocalDateTime) arrowObject);
+				return new Timestamp((Long) arrowObject);
+			} else if (arrowObject instanceof LocalDateTime) {
+				return Timestamp.valueOf((LocalDateTime) arrowObject);
 			}
 			return null;
 		case IValueMeta.TYPE_BOOLEAN:

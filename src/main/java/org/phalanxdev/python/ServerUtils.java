@@ -542,7 +542,6 @@ public class ServerUtils {
    * @param outputStream the output stream to talk to the server on
    * @throws HopException if a problem occurs
    */
-  // TODO: ,xks
   protected static void sendRowsToPandasDataFrame( String envName, ILogChannel log, IRowMeta meta, List<Object[]> rows,
       String frameName, OutputStream outputStream, InputStream inputStream ) throws HopException {
     ObjectMapper mapper = new ObjectMapper();
@@ -790,19 +789,15 @@ public class ServerUtils {
 
       IValueMeta vm;
       if ( fieldType.equals( FIELD_TYPE_NUMBER ) ) {
-        //vm = new ValueMeta( fieldName, IValueMeta.TYPE_NUMBER );
         vm = ValueMetaFactory.createValueMeta( fieldName, IValueMeta.TYPE_NUMBER );
       } else if (fieldType.equals("integer")) {
     	  vm = ValueMetaFactory.createValueMeta(fieldName, IValueMeta.TYPE_INTEGER);
       }
       else if ( fieldType.equals( FIELD_TYPE_STRING ) ) {
-        //vm = new ValueMeta( fieldName, IValueMeta.TYPE_STRING );
         vm = ValueMetaFactory.createValueMeta( fieldName, IValueMeta.TYPE_STRING );
       } else if ( fieldType.equals( FIELD_TYPE_DATE ) ) {
-        // vm = new ValueMeta( fieldName, IValueMeta.TYPE_DATE );
         vm = ValueMetaFactory.createValueMeta( fieldName, IValueMeta.TYPE_DATE );
       } else if ( fieldType.equals( FIELD_TYPE_BOOLEAN ) ) {
-        //vm = new ValueMeta( fieldName, IValueMeta.TYPE_BOOLEAN );
         vm = ValueMetaFactory.createValueMeta( fieldName, IValueMeta.TYPE_BOOLEAN );
       } else {
         throw new HopException( BaseMessages.getString( PKG, "ServerUtils.Error.UnknownFieldType" ) + fieldType );
@@ -848,7 +843,6 @@ public class ServerUtils {
           if ( row[i] == null || Utils.isEmpty( vm.getString( row[i] ) ) ) {
             value = "?";
           } else {
-            //switch ( meta.getValueMetaList().get( i ).getType() ) {
             switch ( vm.getType() ) {
               case IValueMeta.TYPE_NUMBER:
               case IValueMeta.TYPE_INTEGER:
@@ -914,7 +908,6 @@ public class ServerUtils {
         if ( row[i] == null || Utils.isEmpty( vm.getString( row[i] ) ) ) {
           value = "?";
         } else {
-          //switch ( meta.getValueMetaList().get( i ).getType() ) {
           switch ( vm.getType() ) {
             case IValueMeta.TYPE_NUMBER:
             case IValueMeta.TYPE_INTEGER:
