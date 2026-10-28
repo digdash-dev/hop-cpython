@@ -118,7 +118,7 @@ public class ServerUtils {
 	protected static final String FIELD_TYPE_STRING = "string";
 	protected static final String FIELD_TYPE_BOOLEAN = "boolean";
 	protected static final String FIELD_DATE_FORMAT = "date_format";
-	protected static final String FIELD_DATE_FORMAT_NONE = "nome";
+	protected static final String FIELD_DATE_FORMAT_NONE = "none";
 
 	protected static final String ACCEPT_ROWS_COMMAND = "accept_rows";
 	protected static final String GET_FRAME_COMMAND = "get_frame";
@@ -148,9 +148,9 @@ public class ServerUtils {
 	
 	
 	protected static Map<String, Object> createMetadataMessage(String frameName, IRowMeta meta) {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		result.put(FRAME_NAME_KEY, frameName);
-		List<Map<String, String>> fields = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> fields = new ArrayList<>();
 
 		result.put(FIELDS_KEY, fields);
 
@@ -168,7 +168,7 @@ public class ServerUtils {
 		result.put(BASE64_ENCODING_KEY, needsBase64);
 
 		for (IValueMeta v : meta.getValueMetaList()) {
-			Map<String, String> fieldMeta = new HashMap<String, String>();
+			Map<String, String> fieldMeta = new HashMap<>();
 			String fieldName = v.getName();
 			if (needsBase64) {
 				byte[] encodedName = Base64.encodeBase64(fieldName.getBytes(utf8));
@@ -221,7 +221,7 @@ public class ServerUtils {
 			InputStream inputStream, OutputStream outputStream) throws HopException {
 
 		boolean debug = log == null || log.isDebug();
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put(COMMAND_KEY, VARIABLE_IS_SET_KEY);
 		command.put(VARIABLE_NAME_KEY, varName);
 		command.put(DEBUG_KEY, debug);
@@ -276,7 +276,7 @@ public class ServerUtils {
 	protected static boolean pingServer(String pythonServerIDString, ILogChannel log, InputStream inputStream,
 			OutputStream outputStream) {
 		boolean debug = log == null || log.isDebug();
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put(COMMAND_KEY, PING_KEY);
 
 		if (inputStream != null && outputStream != null) {
@@ -350,7 +350,7 @@ public class ServerUtils {
 
 		boolean debug = log == null || log.isDebug();
 		String objectValue = "";
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put(COMMAND_KEY, GET_VARIABLE_VALUE_KEY);
 		command.put(VARIABLE_NAME_KEY, varName);
 		command.put(VARIABLE_ENCODING_KEY, plainString ? STRING_ENCODING_KEY : PICKLED_ENCODING_KEY);
@@ -407,7 +407,7 @@ public class ServerUtils {
 			InputStream inputStream, ILogChannel log) throws HopException {
 
 		boolean debug = log == null || log.isDebug();
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put(COMMAND_KEY, GET_IMAGE_KEY);
 		command.put(VARIABLE_NAME_KEY, varName);
 		command.put(DEBUG_KEY, debug);
@@ -479,10 +479,10 @@ public class ServerUtils {
 		if (!script.endsWith("\n")) {
 			script += "\n";
 		}
-		List<String> outAndErr = new ArrayList<String>();
+		List<String> outAndErr = new ArrayList<>();
 
 		boolean debug = log == null || log.isDebug();
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put("command", "execute_script");
 		command.put("script", script);
 		command.put("debug", debug);
@@ -554,7 +554,7 @@ public class ServerUtils {
 
 		boolean debug = log == null || log.isDebug();
 		Map<String, Object> metaData = createMetadataMessage(frameName, meta);
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put(COMMAND_KEY, ACCEPT_ROWS_COMMAND);
 		command.put(NUM_ROWS_KEY, rows.size());
 		command.put(ROW_META_KEY, metaData);
@@ -630,7 +630,7 @@ public class ServerUtils {
 			boolean includeRowIndex, OutputStream outputStream, InputStream inputStream) throws HopException {
 
 		boolean debug = log == null || log.isDebug();
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put(COMMAND_KEY, GET_FRAME_COMMAND);
 		command.put(FRAME_NAME_KEY, frameName);
 		command.put(FRAME_INCLUDE_ROW_INDEX, includeRowIndex);
@@ -1136,10 +1136,10 @@ public class ServerUtils {
 	@SuppressWarnings("unchecked")
 	protected static List<String> receiveDebugBuffer(String envName, OutputStream outputStream, InputStream inputStream,
 			ILogChannel log) throws HopException {
-		List<String> stdOutStdErr = new ArrayList<String>();
+		List<String> stdOutStdErr = new ArrayList<>();
 
 		boolean debug = log == null || log.isDebug();
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put("command", "get_debug_buffer");
 		command.put("env_name", envName != null ? envName : "default_env");
 
@@ -1190,7 +1190,7 @@ public class ServerUtils {
 			InputStream inputStream, ILogChannel log) throws HopException {
 
 		boolean debug = log == null || log.isDebug();
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put(COMMAND_KEY, GET_VARIABLE_TYPE_KEY);
 		command.put(VARIABLE_NAME_KEY, varName);
 		command.put(DEBUG_KEY, debug);
@@ -1245,7 +1245,7 @@ public class ServerUtils {
 	 * @throws HopException if a problem occurs
 	 */
 	protected static void sendServerShutdown(OutputStream outputStream) throws HopException {
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put("command", "shutdown");
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -1298,7 +1298,7 @@ public class ServerUtils {
 
 		boolean debug = log == null || log.isDebug();
 		Map<String, Object> metaData = createMetadataMessage(frameName, meta);
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put(COMMAND_KEY, ACCEPT_ROWS_COMMAND);
 		command.put(NUM_ROWS_KEY, rows.size());
 		command.put(ROW_META_KEY, metaData);
@@ -1365,7 +1365,7 @@ public class ServerUtils {
 			throws HopException {
 
 		boolean debug = log == null || log.isDebug();
-		Map<String, Object> command = new HashMap<String, Object>();
+		Map<String, Object> command = new HashMap<>();
 		command.put(COMMAND_KEY, GET_FRAME_COMMAND);
 		command.put(FRAME_NAME_KEY, frameName);
 		command.put(FRAME_INCLUDE_ROW_INDEX, includeRowIndex);
