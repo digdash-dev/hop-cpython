@@ -31,26 +31,26 @@ import java.io.Serializable;
  */
 public class SessionException extends Exception implements Serializable {
 
-  /**
-   * for serialization
-   */
-  static final long serialVersionUID = 5995231201785697655L;
+	/**
+	 * for serialization
+	 */
+	static final long serialVersionUID = 5995231201785697655L;
 
-  public SessionException() {
-    super();
-  }
+	public SessionException() {
+		super();
+	}
 
-  public SessionException( String message ) {
-    super( message );
-  }
+	public SessionException(String message) {
+		super(message);
+	}
 
-  public SessionException( String message, Throwable cause ) {
-    this( message );
-    initCause( cause );
-    fillInStackTrace();
-  }
+	public SessionException(String message, Throwable cause) {
+		this(message);
+		initCause(cause);
+		fillInStackTrace();
+	}
 
-  public SessionException( Throwable cause ) {
-    this( cause.getMessage(), cause );
-  }
+	public SessionException(Throwable cause) {
+		this(cause.getMessage(), cause);
+	}
 }

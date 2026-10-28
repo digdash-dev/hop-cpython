@@ -104,7 +104,7 @@ public class PythonSession {
 	}
 
 	private String envName = "default_env";
-	
+
 	/**
 	 * The command used to start python for this session.
 	 */
@@ -298,8 +298,8 @@ public class PythonSession {
 			try {
 				Path secureTmpDir = Files.createTempDirectory("hop_cpython_scripts_");
 				File tempDirFile = secureTmpDir.toFile();
-				
-				tempDirFile.deleteOnExit(); 
+
+				tempDirFile.deleteOnExit();
 
 				ClassLoader loader = PythonSession.class.getClassLoader();
 
@@ -323,7 +323,7 @@ public class PythonSession {
 
 				s_attemptedScriptInstall = true;
 				s_osTmpDir = secureTmpDir.toAbsolutePath().toString();
-				
+
 				return tempDirFile;
 
 			} catch (IOException ex) {
@@ -411,7 +411,6 @@ public class PythonSession {
 		scriptFile.setExecutable(true, true);
 		ProcessBuilder builder = new ProcessBuilder(scriptPath);
 		Process pyProcess = builder.start();
-
 
 		StringWriter writer = new StringWriter();
 		IOUtils.copy(pyProcess.getInputStream(), writer, StandardCharsets.UTF_8);
@@ -619,7 +618,7 @@ public class PythonSession {
 			if (!hasErrors) {
 				if (log != null)
 					log.logDetailed("Python environment check passed. Launching " + pythonCommand
-						+ (serverID != null ? " ID " + serverID : ""));
+							+ (serverID != null ? " ID " + serverID : ""));
 				// launch server
 				launchServer(true);
 				pythonServers.put(sessionKey, this);
@@ -655,9 +654,9 @@ public class PythonSession {
 	 */
 	private synchronized PythonSession getSession(Object requester) throws SessionException {
 		sessionLock.lock();
-		
+
 		sessionHolder = requester;
-		
+
 		return this;
 	}
 
@@ -674,18 +673,18 @@ public class PythonSession {
 			sessionLock.unlock();
 		}
 	}
-	
-	public String getEnvName() {
-        return envName;
-    }
 
-    public void setEnvName(String envName) {
-        if (envName != null && !envName.trim().isEmpty()) {
-            this.envName = envName;
-        } else {
-            this.envName = "default_env";
-        }
-    }
+	public String getEnvName() {
+		return envName;
+	}
+
+	public void setEnvName(String envName) {
+		if (envName != null && !envName.trim().isEmpty()) {
+			this.envName = envName;
+		} else {
+			this.envName = "default_env";
+		}
+	}
 
 	/**
 	 * Starts the server socket.
@@ -698,7 +697,7 @@ public class PythonSession {
 			log.logBasic("Creating server socket...");
 		}
 
-		serverSocket = new ServerSocket(0, 1, InetAddress.getLoopbackAddress());//new ServerSocket(0);
+		serverSocket = new ServerSocket(0, 1, InetAddress.getLoopbackAddress());// new ServerSocket(0);
 		serverSocket.setSoTimeout(12000);
 
 		int port = serverSocket.getLocalPort();
@@ -878,8 +877,7 @@ public class PythonSession {
 			s_sessionSingleton = null;
 		}
 
-		if (vars != null
-				&& !Utils.isEmpty(vars.getVariable(HOP_CPYTHON_COMMAND_PROPERTY_KEY))) {
+		if (vars != null && !Utils.isEmpty(vars.getVariable(HOP_CPYTHON_COMMAND_PROPERTY_KEY))) {
 			pythonCommand = vars.getVariable(HOP_CPYTHON_COMMAND_PROPERTY_KEY);
 			File pyExe = new File(pythonCommand);
 			if (!pyExe.exists() || !pyExe.isFile()) {
@@ -945,15 +943,15 @@ public class PythonSession {
 		String key = pythonCommand + (ownerID != null && ownerID.length() > 0 ? ownerID : "");
 
 		if (pythonServers.containsKey(key)) {
-	        PythonSession existingSession = pythonServers.get(key);
-	        if (existingSession == null || !existingSession.isSessionAlive()) {
-	            if (existingSession != null) {
-	                existingSession.resetDeadSession();
-	            } else {
-	                pythonServers.remove(key);
-	            }
-	        }
-	    } else {
+			PythonSession existingSession = pythonServers.get(key);
+			if (existingSession == null || !existingSession.isSessionAlive()) {
+				if (existingSession != null) {
+					existingSession.resetDeadSession();
+				} else {
+					pythonServers.remove(key);
+				}
+			}
+		} else {
 			try {
 				new PythonSession(pythonCommand, ownerID, pathEntries, false, log);
 			} catch (IOException ex) {
@@ -970,24 +968,20 @@ public class PythonSession {
 
 		return !hasErrors;
 	}
-	
+
 	private boolean isSocketError(Throwable ex) {
-	    while (ex != null) {
-	        if (ex instanceof SocketException || 
-	            ex instanceof EOFException || 
-	            ex instanceof IOException) {
-	            return true;
-	        }
-	        String msg = ex.getMessage();
-	        if (msg != null && (msg.contains("FATAL_SOCKET_DEATH") || 
-	                            msg.contains("Relais brisé") || 
-	                            msg.contains("Broken pipe") || 
-	                            msg.contains("Socket closed"))) {
-	            return true;
-	        }
-	        ex = ex.getCause();
-	    }
-	    return false;
+		while (ex != null) {
+			if (ex instanceof SocketException || ex instanceof EOFException || ex instanceof IOException) {
+				return true;
+			}
+			String msg = ex.getMessage();
+			if (msg != null && (msg.contains("FATAL_SOCKET_DEATH") || msg.contains("Relais brisé")
+					|| msg.contains("Broken pipe") || msg.contains("Socket closed"))) {
+				return true;
+			}
+			ex = ex.getCause();
+		}
+		return false;
 	}
 
 	/**
@@ -1035,14 +1029,16 @@ public class PythonSession {
 		try {
 			if (log != null && log.isDebug())
 				log.logDebug("sendrowstopandasdataframe with envname = " + envName);
-			ServerUtils.sendRowsToPandasDataFrame(envName, log, rowMeta, rows, pythonFrameName, localSocket.getOutputStream(),
-					localSocket.getInputStream());
+			ServerUtils.sendRowsToPandasDataFrame(envName, log, rowMeta, rows, pythonFrameName,
+					localSocket.getOutputStream(), localSocket.getInputStream());
 		} catch (Exception ex) {
 			if (isSocketError(ex)) {
-	            System.err.println("PythonSession catching socket death. Resetting THIS session...");
-	            this.resetDeadSession(); 
-	            throw new HopException("The connection to the Python server was lost. The session has been safely reset for your next run.", ex);
-	        }
+				System.err.println("PythonSession catching socket death. Resetting THIS session...");
+				this.resetDeadSession();
+				throw new HopException(
+						"The connection to the Python server was lost. The session has been safely reset for your next run.",
+						ex);
+			}
 			throw new HopException(ex);
 		}
 	}
@@ -1065,10 +1061,12 @@ public class PythonSession {
 					localSocket.getOutputStream(), localSocket.getInputStream());
 		} catch (Exception ex) {
 			if (isSocketError(ex)) {
-	            System.err.println("PythonSession catching socket death. Resetting THIS session...");
-	            this.resetDeadSession(); 
-	            throw new HopException("The connection to the Python server was lost. The session has been safely reset for your next run.", ex);
-	        }
+				System.err.println("PythonSession catching socket death. Resetting THIS session...");
+				this.resetDeadSession();
+				throw new HopException(
+						"The connection to the Python server was lost. The session has been safely reset for your next run.",
+						ex);
+			}
 			throw new HopException(ex);
 		}
 	}
@@ -1099,10 +1097,12 @@ public class PythonSession {
 			}
 		} catch (Exception ex) {
 			if (isSocketError(ex)) {
-	            System.err.println("PythonSession catching socket death. Resetting THIS session...");
-	            this.resetDeadSession(); 
-	            throw new HopException("The connection to the Python server was lost. The session has been safely reset for your next run.", ex);
-	        }
+				System.err.println("PythonSession catching socket death. Resetting THIS session...");
+				this.resetDeadSession();
+				throw new HopException(
+						"The connection to the Python server was lost. The session has been safely reset for your next run.",
+						ex);
+			}
 			throw new HopException(ex);
 		}
 	}
@@ -1133,10 +1133,12 @@ public class PythonSession {
 			}
 		} catch (Exception ex) {
 			if (isSocketError(ex)) {
-	            System.err.println("PythonSession catching socket death. Resetting THIS session...");
-	            this.resetDeadSession(); 
-	            throw new HopException("The connection to the Python server was lost. The session has been safely reset for your next run.", ex);
-	        }
+				System.err.println("PythonSession catching socket death. Resetting THIS session...");
+				this.resetDeadSession();
+				throw new HopException(
+						"The connection to the Python server was lost. The session has been safely reset for your next run.",
+						ex);
+			}
 			throw new HopException(ex);
 		}
 	}
@@ -1193,7 +1195,8 @@ public class PythonSession {
 		try {
 			if (log != null && log.isDebug())
 				log.logDebug("receivedebugbuffer with envname = " + envName);
-			return ServerUtils.receiveDebugBuffer(envName, localSocket.getOutputStream(), localSocket.getInputStream(), log);
+			return ServerUtils.receiveDebugBuffer(envName, localSocket.getOutputStream(), localSocket.getInputStream(),
+					log);
 		} catch (IOException ex) {
 			throw new HopException(ex);
 		}
@@ -1233,26 +1236,23 @@ public class PythonSession {
 		try {
 			if (log != null && log.isDebug())
 				log.logDebug("executeuserscript with envname = " + envName);
-			return ServerUtils.executeUserScript(envName, pyScript, localSocket.getOutputStream(), localSocket.getInputStream(),
-					log);
+			return ServerUtils.executeUserScript(envName, pyScript, localSocket.getOutputStream(),
+					localSocket.getInputStream(), log);
 		} catch (Exception ex) {
 			if (isSocketError(ex)) {
-	            System.err.println("PythonSession catching socket death. Reseting THIS session...");
-	            this.resetDeadSession(); 
-	            throw new HopException("The connection to the Python server was lost. The session has been safely reset for your next run.", ex);
-	        }
+				System.err.println("PythonSession catching socket death. Reseting THIS session...");
+				this.resetDeadSession();
+				throw new HopException(
+						"The connection to the Python server was lost. The session has been safely reset for your next run.",
+						ex);
+			}
 			throw new HopException(ex);
 		}
 	}
-	
+
 	public boolean isSessionAlive() {
-	    return !shutdown &&
-	    	   serverProcess != null &&
-	           serverProcess.isAlive() &&
-	    	   localSocket != null && 
-	           !localSocket.isClosed() && 
-	           localSocket.isConnected() && 
-	           !localSocket.isOutputShutdown();
+		return !shutdown && serverProcess != null && serverProcess.isAlive() && localSocket != null
+				&& !localSocket.isClosed() && localSocket.isConnected() && !localSocket.isOutputShutdown();
 	}
 
 	/**
@@ -1294,51 +1294,52 @@ public class PythonSession {
 	}
 
 	public static String resolvePythonCommand(String explicitCommand, IVariables vars) {
-	    if (explicitCommand != null && !explicitCommand.trim().isEmpty()) {
-	        if (vars != null) {
-	            explicitCommand = vars.resolve(explicitCommand);
-	        }
-	        if (new File(explicitCommand).exists()) {
-	            return explicitCommand;
-	        }
-	    }
+		if (explicitCommand != null && !explicitCommand.trim().isEmpty()) {
+			if (vars != null) {
+				explicitCommand = vars.resolve(explicitCommand);
+			}
+			if (new File(explicitCommand).exists()) {
+				return explicitCommand;
+			}
+		}
 
-	    if (vars != null) {
-	        String hopVar = vars.getVariable("HOP_CPYTHON_COMMAND");
-	        if (hopVar != null && !hopVar.trim().isEmpty() && new File(hopVar).exists()) {
-	            return hopVar;
-	        }
-	    }
+		if (vars != null) {
+			String hopVar = vars.getVariable("HOP_CPYTHON_COMMAND");
+			if (hopVar != null && !hopVar.trim().isEmpty() && new File(hopVar).exists()) {
+				return hopVar;
+			}
+		}
 
-	    String sysProp = System.getProperty("cpython.command");
-	    if (sysProp != null && !sysProp.trim().isEmpty() && new File(sysProp).exists()) {
-	        return sysProp;
-	    }
+		String sysProp = System.getProperty("cpython.command");
+		if (sysProp != null && !sysProp.trim().isEmpty() && new File(sysProp).exists()) {
+			return sysProp;
+		}
 
-	    boolean isWin = System.getProperty("os.name").toLowerCase().contains("win");
-	    
-	    String virtualEnv = System.getenv("VIRTUAL_ENV");
-	    if (virtualEnv != null && !virtualEnv.trim().isEmpty()) {
-	        
-	        File venvPy = new File(virtualEnv, isWin ? "Scripts/python.exe" : "bin/python");
-	        if (venvPy.exists()) {
-	            return venvPy.getAbsolutePath();
-	        }
-	    }
+		boolean isWin = System.getProperty("os.name").toLowerCase().contains("win");
 
-	    return isWin ? "python" : "python3";
+		String virtualEnv = System.getenv("VIRTUAL_ENV");
+		if (virtualEnv != null && !virtualEnv.trim().isEmpty()) {
+
+			File venvPy = new File(virtualEnv, isWin ? "Scripts/python.exe" : "bin/python");
+			if (venvPy.exists()) {
+				return venvPy.getAbsolutePath();
+			}
+		}
+
+		return isWin ? "python" : "python3";
 	}
-	
+
 	public static synchronized void shutdownSession(String pythonCommand, String ownerID) {
-	    String key = (pythonCommand != null ? pythonCommand : "") + "@" + (ownerID != null ? ownerID : "default");
-	    PythonSession session = pythonServers.remove(key);
-	    if (session != null) {
-	        try {
-	            session.shutdown();
-	        } catch (Exception ignored) {}
-	    }
+		String key = (pythonCommand != null ? pythonCommand : "") + "@" + (ownerID != null ? ownerID : "default");
+		PythonSession session = pythonServers.remove(key);
+		if (session != null) {
+			try {
+				session.shutdown();
+			} catch (Exception ignored) {
+			}
+		}
 	}
-	
+
 	/**
 	 * Shutdown the python server
 	 */
@@ -1411,15 +1412,16 @@ public class PythonSession {
 	}
 
 	public synchronized void resetDeadSession() {
-	    try {
-	        if (log != null) {
-	            log.logBasic("Fatal socket error detected. Resetting session: " + sessionKey);
-	        } else {
-	            System.err.println("Fatal socket error detected. Resetting session: " + sessionKey);
-	        }
-	        this.shutdown();
-	    } catch (Exception e) {}
-	    this.localSocket = null;
+		try {
+			if (log != null) {
+				log.logBasic("Fatal socket error detected. Resetting session: " + sessionKey);
+			} else {
+				System.err.println("Fatal socket error detected. Resetting session: " + sessionKey);
+			}
+			this.shutdown();
+		} catch (Exception e) {
+		}
+		this.localSocket = null;
 	}
 
 	public static void main(String[] args) {
@@ -1432,9 +1434,9 @@ public class PythonSession {
 
 			String temp = "";
 			PythonSession session = PythonSession.acquireSession(temp);
-			
+
 			session.setEnvName("main_test_env");
-			
+
 			Object[] rowData = { 22L, 300.22, "Hello bob", false, new Date(), new Timestamp(new Date().getTime()),
 					null };
 			IRowMeta rowMeta = new RowMeta();

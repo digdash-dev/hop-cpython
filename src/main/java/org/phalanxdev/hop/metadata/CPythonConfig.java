@@ -13,27 +13,27 @@ import lombok.Setter;
 @Getter
 @Setter
 @GuiPlugin(id = CPythonConfig.GUI_PLUGIN_ID)
-@HopMetadata(name = "i18n::CPythonConfig.Name",
-             description = "i18n::CPythonConfig.Description",
-             image = "pylogo.svg",
-             category = "run-config",
-             key = "cpython-config")
+@HopMetadata(
+		name = "i18n::CPythonConfig.Name",
+		description = "i18n::CPythonConfig.Description",
+		image = "pylogo.svg",
+		category = "run-config",
+		key = "cpython-config")
 public class CPythonConfig extends HopMetadataBase {
 	public static final String GUI_PLUGIN_ID = "CPythonConfig_GUI";
-	
+
 	@GuiWidgetElement(
-	        id = "name",
-	        order = "01",
-	        label = "i18n::CPythonConfigEditor.Name.Label",
-	        toolTip = "i18n::CPythonConfigEditor.Name.Tooltip",
-	        type = GuiElementType.TEXT,
-	        variables = true,
-	        multiLineTextHeight = 5,
-	        parentId = GUI_PLUGIN_ID
-	)
+			id = "name",
+			order = "01",
+			label = "i18n::CPythonConfigEditor.Name.Label",
+			toolTip = "i18n::CPythonConfigEditor.Name.Tooltip",
+			type = GuiElementType.TEXT,
+			variables = true,
+			multiLineTextHeight = 5,
+			parentId = GUI_PLUGIN_ID)
 	@HopMetadataProperty
 	private String name;
-	
+
 	/**
 	 * User-supplied path to python executable. If not specified, then we use the
 	 * default python in the path

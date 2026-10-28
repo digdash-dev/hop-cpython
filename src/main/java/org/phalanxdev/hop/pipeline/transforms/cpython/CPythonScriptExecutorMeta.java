@@ -57,7 +57,13 @@ import java.util.List;
  *
  * @author Mark Hall (mhall{[at]}phalanxdev{[dot]}com)
  */
-@Transform(id = "CPythonScriptExecutor", image = "pylogo.svg", name = "CPython Script Executor", description = "Executes a python script", categoryDescription = "Statistics", documentationUrl = "https://github.com/digdash-dev/hop-cpython/blob/main/docs/cpython-script-executor.adoc")
+@Transform(
+		id = "CPythonScriptExecutor",
+		image = "pylogo.svg",
+		name = "CPython Script Executor",
+		description = "Executes a python script",
+		categoryDescription = "Statistics",
+		documentationUrl = "https://github.com/digdash-dev/hop-cpython/blob/main/docs/cpython-script-executor.adoc")
 public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptExecutor, CPythonScriptExecutorData> {
 
 	private static Class<?> PKG = CPythonScriptExecutor.class;
@@ -102,7 +108,7 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 
 	@HopMetadataProperty
 	protected String libraries = "";
-	
+
 	public String getLibraries() {
 		return libraries;
 	}
@@ -316,14 +322,16 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	}
 
 	/**
-	 * Sets whether the transform should or not include input values in the output stream
+	 * Sets whether the transform should or not include input values in the output
+	 * stream
 	 */
 	public void setIncludeInputAsOutput(boolean s) {
 		includeInputAsOutput = s;
 	}
 
 	/**
-	 * Gets whether the transform should or not include input values in the output stream
+	 * Gets whether the transform should or not include input values in the output
+	 * stream
 	 *
 	 * @return true if transform should include input values in output
 	 */
@@ -431,17 +439,17 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 * Set the list of python variables to retrieve. If there is more than one
 	 * variable being retrieved, then each variable will be extracted from python as
 	 * a string, unless it is an image, in which case the image data is retrieved.
-	 * The names of fields output by the transform are expected to match the variable
-	 * names in this case; furthermore, the user is expected to set the appropriate
-	 * outgoing Hop field type (this must be binary in the case of image data).
-	 * Note that the transform will not know the types of the specified variables before
-	 * runtime.
+	 * The names of fields output by the transform are expected to match the
+	 * variable names in this case; furthermore, the user is expected to set the
+	 * appropriate outgoing Hop field type (this must be binary in the case of image
+	 * data). Note that the transform will not know the types of the specified
+	 * variables before runtime.
 	 * <p/>
 	 * If there is just one variable being extracted from python, then the output
 	 * fields must match the names of the columns of a pandas data frame (in the
 	 * case that the variable is a data frame), or the name of the variable in the
-	 * case that is not a data frame. In both cases, appropriate Hop types must
-	 * be specified by the user.
+	 * case that is not a data frame. In both cases, appropriate Hop types must be
+	 * specified by the user.
 	 *
 	 * @param pyVars the list of python variables to retrieve
 	 */
@@ -453,17 +461,17 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 * Get the list of python variables to retrieve. If there is more than one
 	 * variable being retrieved, then each variable will be extracted from python as
 	 * a string, unless it is an image, in which case the image data is retrieved.
-	 * The names of fields output by the transform are expected to match the variable
-	 * names in this case; furthermore, the user is expected to set the appropriate
-	 * outgoing Hop field type (this must be binary in the case of image data).
-	 * Note that the transform will not know the types of the specified variables before
-	 * runtime.
+	 * The names of fields output by the transform are expected to match the
+	 * variable names in this case; furthermore, the user is expected to set the
+	 * appropriate outgoing Hop field type (this must be binary in the case of image
+	 * data). Note that the transform will not know the types of the specified
+	 * variables before runtime.
 	 * <p/>
 	 * If there is just one variable being extracted from python, then the output
 	 * fields must match the names of the columns of a pandas data frame (in the
 	 * case that the variable is a data frame), or the name of the variable in the
-	 * case that is not a data frame. In both cases, appropriate Hop types must
-	 * be specified by the user.
+	 * case that is not a data frame. In both cases, appropriate Hop types must be
+	 * specified by the user.
 	 *
 	 * @return the list of python variables to retrieve
 	 */
@@ -473,8 +481,8 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 
 	/**
 	 * Set whether to include the pandas data frame row index as an output field, in
-	 * the case where the output of the transform is a single pandas data frame. Has no
-	 * affect if multiple variables are being retrieved from python.
+	 * the case where the output of the transform is a single pandas data frame. Has
+	 * no affect if multiple variables are being retrieved from python.
 	 *
 	 * @param includeFrameRowIndexAsOutputField true to include the frame row index
 	 *                                          as an output field
@@ -485,8 +493,8 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 
 	/**
 	 * Get whether to include the pandas data frame row index as an output field, in
-	 * the case where the output of the transform is a single pandas data frame. Has no
-	 * affect if multiple variables are being retrieved from python.
+	 * the case where the output of the transform is a single pandas data frame. Has
+	 * no affect if multiple variables are being retrieved from python.
 	 *
 	 * @return true to include the frame row index as an output field
 	 */
@@ -515,7 +523,8 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 		return continueOnUnsetVars;
 	}
 
-	public IRowMeta determineOutputRowMeta(IRowMeta[] info, IVariables space, IHopMetadataProvider metadataProvider) throws HopException {
+	public IRowMeta determineOutputRowMeta(IRowMeta[] info, IVariables space, IHopMetadataProvider metadataProvider)
+			throws HopException {
 
 		List<IRowMeta> incomingMetas = new ArrayList<>();
 
@@ -613,8 +622,8 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 	 * and the type of the variable will be determined; if it is a pandas frame,
 	 * then the field meta data can be determined.
 	 */
-	private void addScriptFieldsToOutput(IRowMeta rowMeta, IRowMeta[] info, String transformName, IVariables space, IHopMetadataProvider metadataProvider)
-			throws HopException {
+	private void addScriptFieldsToOutput(IRowMeta rowMeta, IRowMeta[] info, String transformName, IVariables space,
+			IHopMetadataProvider metadataProvider) throws HopException {
 		if (pyVarsToGet.size() == 1) {
 			// could be just a single pandas data frame - see if we can determine
 			// the fields in this frame...
@@ -790,8 +799,7 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 			IHopMetadataProvider metadataProvider) {
 		CheckResult cr;
 
-		if (Utils.isEmpty(getScript())
-				&& Utils.isEmpty(getLoadScriptFile())) {
+		if (Utils.isEmpty(getScript()) && Utils.isEmpty(getLoadScriptFile())) {
 			cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR,
 					BaseMessages.getString(PKG, "CPythonScriptExecutor.Error.NoScriptProvided"), transformMeta);
 		} else {

@@ -28,70 +28,71 @@ package org.phalanxdev.python;
  * @author Mark Hall (mhall{[at]}waikato{[dot]}ac{[dot]}nz)
  */
 public class SessionMutex {
-  private boolean verbose;
+	private boolean verbose;
 
-  /**
-   * defines the current mutex state
-   */
-  private boolean locked;
+	/**
+	 * defines the current mutex state
+	 */
+	private boolean locked;
 
-  /**
-   * thread that m_locked this mutex
-   */
-  private Thread lockedBy;
+	/**
+	 * thread that m_locked this mutex
+	 */
+	private Thread lockedBy;
 
-  public SessionMutex() {
-  }
+	public SessionMutex() {
+	}
 
-  public SessionMutex( boolean verbose ) {
-    this.verbose = verbose;
-  }
+	public SessionMutex(boolean verbose) {
+		this.verbose = verbose;
+	}
 
-  private synchronized void lock() {
-    while ( locked ) {
-      if ( lockedBy == Thread.currentThread() ) {
-        System.err.println( "INFO: Mutex detected a deadlock! The application is likely to hang indefinitely!" );
-      }
+	private synchronized void lock() {
+		while (locked) {
+			if (lockedBy == Thread.currentThread()) {
+				System.err.println("INFO: Mutex detected a deadlock! The application is likely to hang indefinitely!");
+			}
 
-      if ( verbose ) {
-        System.out.println( "INFO: " + toString() + " is m_locked by " + lockedBy + ", but " + Thread.currentThread()
-            + " waits for release" );
-      }
-      try {
-        wait();
-      } catch ( InterruptedException e ) {
-        if ( verbose )
-          System.out.println( "INFO: " + toString() + " caught InterruptedException" );
-      }
-    }
-    locked = true;
-    lockedBy = Thread.currentThread();
-    if ( verbose ) {
-      System.out.println( "INFO: " + toString() + " m_locked by " + lockedBy );
-    }
-  }
+			if (verbose) {
+				System.out.println("INFO: " + toString() + " is m_locked by " + lockedBy + ", but "
+						+ Thread.currentThread() + " waits for release");
+			}
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				if (verbose)
+					System.out.println("INFO: " + toString() + " caught InterruptedException");
+			}
+		}
+		locked = true;
+		lockedBy = Thread.currentThread();
+		if (verbose) {
+			System.out.println("INFO: " + toString() + " m_locked by " + lockedBy);
+		}
+	}
 
-  public synchronized boolean safeLock() {
-    if ( locked && lockedBy == Thread.currentThread() ) {
-      if ( verbose ) {
-        System.out.println( "INFO: " + toString() + " unable to provide safe lock for " + Thread.currentThread() );
-      }
-      return false;
-    }
-    lock();
-    return true;
-  }
+	public synchronized boolean safeLock() {
+		if (locked && lockedBy == Thread.currentThread()) {
+			if (verbose) {
+				System.out
+						.println("INFO: " + toString() + " unable to provide safe lock for " + Thread.currentThread());
+			}
+			return false;
+		}
+		lock();
+		return true;
+	}
 
-  public synchronized void unlock() {
-    if ( locked && lockedBy != Thread.currentThread() ) {
-      System.err.println( "WARNING: Mutex was unlocked by other thread" );
-    }
-    locked = false;
-    if ( verbose ) {
-      System.out.println( "INFO: " + toString() + " unlocked by " + Thread.currentThread() );
-    }
+	public synchronized void unlock() {
+		if (locked && lockedBy != Thread.currentThread()) {
+			System.err.println("WARNING: Mutex was unlocked by other thread");
+		}
+		locked = false;
+		if (verbose) {
+			System.out.println("INFO: " + toString() + " unlocked by " + Thread.currentThread());
+		}
 
-    // notify just 1 in case more of them are waiting
-    notify();
-  }
+		// notify just 1 in case more of them are waiting
+		notify();
+	}
 }

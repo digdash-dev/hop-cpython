@@ -48,19 +48,19 @@ import org.phalanxdev.hop.pipeline.transforms.reservoirsampling.ReservoirSamplin
 import org.phalanxdev.python.PythonSession;
 
 /**
- * transform that executes a python script using CPython. The transform can accept 0 or
- * more incoming row sets. Row sets are sent to python as named pandas data
- * frames. Data can be sent to python in batches, as samples, row-by-row or as
- * all available rows.
+ * transform that executes a python script using CPython. The transform can
+ * accept 0 or more incoming row sets. Row sets are sent to python as named
+ * pandas data frames. Data can be sent to python in batches, as samples,
+ * row-by-row or as all available rows.
  * </p>
  * Output can be one or more variables that are set in python after the user's
  * script executes. In the case of a single variable this can be a data frame,
- * in which case the columns of the frame become output fields from this transform.
- * In the case of multiple variables they are retrieved in string form or as png
- * image data - the transform automatically detects if a variable is an image and
- * retrieves it as png. In this mode there is one row output from the transform,
- * where each outgoing field holds the string/serializable value of a single
- * variable.
+ * in which case the columns of the frame become output fields from this
+ * transform. In the case of multiple variables they are retrieved in string
+ * form or as png image data - the transform automatically detects if a variable
+ * is an image and retrieves it as png. In this mode there is one row output
+ * from the transform, where each outgoing field holds the string/serializable
+ * value of a single variable.
  * </p>
  * The transform requires python 2.7 or 3.4. It also requires the pandas, numpy,
  * matplotlib and sklearn. The python executable must be available in the user's
@@ -84,19 +84,12 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 		this.meta = meta;
 		this.data = data;
 	}
-	
+
 	private List<String> getMissingLibraries(String pythonCommand, List<String> libraries) throws Exception {
-		String checkScript = 
-				"import sys\n" +
-				"from importlib.metadata import version, PackageNotFoundError\n" +
-				"missing = []\n" +
-				"for lib in sys.argv[1:]:\n" +
-				"    try:\n" +
-				"        version(lib)\n" +
-				"    except PackageNotFoundError:\n" +
-				"        missing.append(lib)\n" +
-				"for m in missing:\n" +
-				"    print(m)\n";
+		String checkScript = "import sys\n" + "from importlib.metadata import version, PackageNotFoundError\n"
+				+ "missing = []\n" + "for lib in sys.argv[1:]:\n" + "    try:\n" + "        version(lib)\n"
+				+ "    except PackageNotFoundError:\n" + "        missing.append(lib)\n" + "for m in missing:\n"
+				+ "    print(m)\n";
 
 		List<String> checkCommand = new ArrayList<>();
 		checkCommand.add(pythonCommand);
@@ -106,10 +99,10 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 
 		ProcessBuilder checkPb = new ProcessBuilder(checkCommand);
 		Process checkProcess = checkPb.start();
-		
+
 		List<String> missingLibraries = new ArrayList<>();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-				checkProcess.getInputStream(), StandardCharsets.UTF_8))) {
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(checkProcess.getInputStream(), StandardCharsets.UTF_8))) {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				String missingLib = line.trim();
@@ -122,19 +115,18 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 
 		return missingLibraries;
 	}
-	
-	
+
 	private synchronized void installTransformLibraries(String pythonCommand, List<String> libraries) {
 		if (libraries == null || libraries.isEmpty()) {
 			return;
 		}
-		
+
 		ILogChannel log = getLogChannel();
 		List<String> librariesToInstall = libraries;
-		
+
 		try {
 			librariesToInstall = getMissingLibraries(pythonCommand, libraries);
-			
+
 			if (librariesToInstall.isEmpty()) {
 				if (log != null && log.isDebug()) {
 					log.logDebug("All required Python libraries are already installed. Skipping pip.");
@@ -143,7 +135,8 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 			}
 		} catch (Exception e) {
 			if (log != null)
-				log.logDebug("Could not verify existing libraries. Falling back to pip install. Error: " + e.getMessage());
+				log.logDebug(
+						"Could not verify existing libraries. Falling back to pip install. Error: " + e.getMessage());
 		}
 		try {
 			if (log != null)
@@ -161,9 +154,9 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 			Process pipProcess = pipPb.start();
 
 			// Read output to prevent freezing
-			  List<String> processOutput = new ArrayList<>();
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-					pipProcess.getInputStream(), StandardCharsets.UTF_8))) {
+			List<String> processOutput = new ArrayList<>();
+			try (BufferedReader reader = new BufferedReader(
+					new InputStreamReader(pipProcess.getInputStream(), StandardCharsets.UTF_8))) {
 				String line;
 				while ((line = reader.readLine()) != null) {
 					processOutput.add(line);
@@ -178,7 +171,7 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 				String fullOutput = String.join("\n", processOutput);
 				if (log != null) {
 					log.logError("Warning: pip install returned exit code " + exitCode + ":\n" + fullOutput);
-				}else {
+				} else {
 					System.err.println("pip install failed with exit code " + exitCode + ":\n" + fullOutput);
 				}
 			}
@@ -195,8 +188,7 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 	public boolean init() {
 		if (super.init()) {
 			try {
-				if (Utils.isEmpty(meta.getScript())
-						&& Utils.isEmpty(meta.getLoadScriptFile())) {
+				if (Utils.isEmpty(meta.getScript()) && Utils.isEmpty(meta.getLoadScriptFile())) {
 					throw new HopException(BaseMessages.getString(PKG, "CPythonScriptExecutor.Error.NoScriptProvided"));
 				}
 
@@ -225,45 +217,47 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 				if (!data.includeInputAsOutput) {
 					data.includeInputAsOutput = meta.isIncludeInputAsOutput();
 				}
-				
+
 				String pythonCommand = null;
 				String pyPathEntries = null;
 				String serverID = null;
-				
+
 				String resolvedConfigName = resolve(meta.getConfigName());
 				if (!Utils.isEmpty(resolvedConfigName)) {
 					CPythonConfig config = getMetadataProvider().getSerializer(CPythonConfig.class)
-						.load(resolvedConfigName);
+							.load(resolvedConfigName);
 					if (config == null) {
-						throw new HopException(BaseMessages.getString(PKG, "CPythonScriptExecutor.Error.PythonConfigNotFound", resolvedConfigName));
+						throw new HopException(BaseMessages.getString(PKG,
+								"CPythonScriptExecutor.Error.PythonConfigNotFound", resolvedConfigName));
 					}
-					
+
 					pythonCommand = config.getPythonCommand();
 					pyPathEntries = config.getPyPathEntries();
 					serverID = config.getServerID();
 				}
-				
+
 				pythonCommand = PythonSession.resolvePythonCommand(pythonCommand, this);
 				if (Utils.isEmpty(pythonCommand)) {
-				    throw new HopException(BaseMessages.getString(PKG, "CPythonScriptExecutor.Error.NoPythonCommandConfigured", resolvedConfigName));
+					throw new HopException(BaseMessages.getString(PKG,
+							"CPythonScriptExecutor.Error.NoPythonCommandConfigured", resolvedConfigName));
 				}
 				data.pythonCommand = pythonCommand;
-				
+
 				data.pyPathEntries = resolve(pyPathEntries);
-				
+
 				if (Utils.isEmpty(serverID))
-				    data.serverID = getTransformName() + (getCopy() > 0 ? ("_" + getCopy()) : ""); 
+					data.serverID = getTransformName() + (getCopy() > 0 ? ("_" + getCopy()) : "");
 				else
-				    data.serverID = resolve(serverID) + (getCopy() > 0 ? ("_" + getCopy()) : "");
-				
+					data.serverID = resolve(serverID) + (getCopy() > 0 ? ("_" + getCopy()) : "");
+
 				if (!Utils.isEmpty(meta.getLibraries())) {
 					List<String> requiredLibs = Arrays.asList(meta.getLibraries().trim().split("\\s+"));
 					installTransformLibraries(data.pythonCommand, requiredLibs);
 				}
-				
+
 				CPythonScriptExecutorData.initPython(data.pythonCommand, data.serverID, data.pyPathEntries, this,
 						getLogChannel());
-				
+
 			} catch (Exception ex) {
 				logError("Initialization failed: " + ex.getMessage(), ex);
 				return false;
@@ -413,124 +407,134 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 	}
 
 	protected void processBatch(boolean allDone) throws HopException {
-	    PythonSession session = null;
+		PythonSession session = null;
 
-	    try {
-	        if (noInputRowSets) {
-	            session = CPythonScriptExecutorData.acquirePySession(this, data.pythonCommand, data.serverID, getLogChannel(), this);
-	            session.setUseArrow(meta.isUseArrow());
-	            session.setEnvName(getTransformName());
-	            executeScriptAndProcessResult(session, meta.isContinueOnUnsetVars());
-	            return;
-	        }
+		try {
+			if (noInputRowSets) {
+				session = CPythonScriptExecutorData.acquirePySession(this, data.pythonCommand, data.serverID,
+						getLogChannel(), this);
+				session.setUseArrow(meta.isUseArrow());
+				session.setEnvName(getTransformName());
+				executeScriptAndProcessResult(session, meta.isContinueOnUnsetVars());
+				return;
+			}
 
-	        if (!meta.isDoingReservoirSampling() && !data.incomingRowSets.isEmpty()) {
-	            boolean executeScript = false;
-	            // Track exactly which buffers we push so we don't accidentally clear unsent data
-	            List<List<Object[]>> buffersToClear = new ArrayList<>();
+			if (!meta.isDoingReservoirSampling() && !data.incomingRowSets.isEmpty()) {
+				boolean executeScript = false;
+				// Track exactly which buffers we push so we don't accidentally clear unsent
+				// data
+				List<List<Object[]>> buffersToClear = new ArrayList<>();
 
-	            for (int i = 0; i < data.frameBuffers.size(); i++) {
-	                List<Object[]> frameBuffer = data.frameBuffers.get(i);
-	                
-	                if (frameBuffer.size() >= data.batchSize || (allDone && !frameBuffer.isEmpty())) {
-	                    
-	                    if (session == null) {
-	                        session = CPythonScriptExecutorData.acquirePySession(this, data.pythonCommand, data.serverID, getLogChannel(), this);
-	                        session.setUseArrow(meta.isUseArrow());
-	                        session.setEnvName(getTransformName());
-	                    }
+				for (int i = 0; i < data.frameBuffers.size(); i++) {
+					List<Object[]> frameBuffer = data.frameBuffers.get(i);
 
-	                    String frameName = resolve(meta.getInputFrames().get(i).getFrameName());
-	                    logDetailed(BaseMessages.getString(PKG, "CPythonScriptExecutor.Message.PushingBatchIntoPandasDataFrame", frameBuffer.size(), frameName));
-	                    
-	                    rowsToPyDataFrame(session, data.incomingRowSets.get(i).getRowMeta(), frameBuffer, frameName);
-	                    
-	                    buffersToClear.add(frameBuffer);
-	                    executeScript = true;
-	                }
-	            }
+					if (frameBuffer.size() >= data.batchSize || (allDone && !frameBuffer.isEmpty())) {
 
-	            if (executeScript) {
-	                executeScriptAndProcessResult(session, meta.isContinueOnUnsetVars());
-	                // Only clear the buffers that were actually sent to Python
-	                for (List<Object[]> buffer : buffersToClear) {
-	                    buffer.clear();
-	                }
-	            }
-	            return;
-	        }
+						if (session == null) {
+							session = CPythonScriptExecutorData.acquirePySession(this, data.pythonCommand,
+									data.serverID, getLogChannel(), this);
+							session.setUseArrow(meta.isUseArrow());
+							session.setEnvName(getTransformName());
+						}
 
-	        if (allDone) {
-	            logDetailed(BaseMessages.getString(PKG, "CPythonScriptExecutor.Message.RetrievingReservoirs"));
-	            
-	            int maxRows = 0;
-	            List<List<Object[]>> allSamples = new ArrayList<>();
-	            
-	            for (int j = 0; j < data.reservoirSamplers.size(); j++) {
-	                List<Object[]> sample = data.reservoirSamplers.get(j).getSample();
-	                CPythonScriptExecutorData.pruneNullRowsFromSample(sample);
-	                allSamples.add(sample);
-	                
-	                if (sample != null && sample.size() > maxRows) {
-	                    maxRows = sample.size();
-	                }
-	            }
+						String frameName = resolve(meta.getInputFrames().get(i).getFrameName());
+						logDetailed(BaseMessages.getString(PKG,
+								"CPythonScriptExecutor.Message.PushingBatchIntoPandasDataFrame", frameBuffer.size(),
+								frameName));
 
-	            if (maxRows == 0) {
-	                return;
-	            }
+						rowsToPyDataFrame(session, data.incomingRowSets.get(i).getRowMeta(), frameBuffer, frameName);
 
-	            session = CPythonScriptExecutorData.acquirePySession(this, data.pythonCommand, data.serverID, getLogChannel(), this);
-	            session.setEnvName(getTransformName());
-	            session.setUseArrow(meta.isUseArrow());
+						buffersToClear.add(frameBuffer);
+						executeScript = true;
+					}
+				}
 
-	            if (data.batchSize == 1) {
-	                for (int rowIndex = 0; rowIndex < maxRows; rowIndex++) {
-	                    boolean rowPushed = false;
-	                    
-	                    for (int j = 0; j < data.reservoirSamplers.size(); j++) {
-	                        List<Object[]> sample = allSamples.get(j);
-	                        
-	                        if (sample != null && rowIndex < sample.size()) {
-	                            String frameName = resolve(meta.getInputFrames().get(j).getFrameName());
-	                            
-	                            List<Object[]> singleRowList = new ArrayList<>(1);
-	                            singleRowList.add(sample.get(rowIndex));
-	                            
-	                            rowsToPyDataFrame(session, data.incomingRowSets.get(j).getRowMeta(), singleRowList, frameName);
-	                            rowPushed = true;
-	                        }
-	                    }
-	                    if (rowPushed) {
-	                        data.rowByRowReservoirSampleIndex = rowIndex;
-	                        executeScriptAndProcessResult(session, meta.isContinueOnUnsetVars());
-	                    }
-	                }
-	            } else {
-	                boolean anySamplePushed = false;
-	                
-	                for (int j = 0; j < data.reservoirSamplers.size(); j++) {
-	                    List<Object[]> sample = allSamples.get(j);
-	                    
-	                    if (sample != null && !sample.isEmpty()) {
-	                        String frameName = resolve(meta.getInputFrames().get(j).getFrameName());
-	                        logDetailed(BaseMessages.getString(PKG, "CPythonScriptExecutor.Message.PushingSampleFromReservoirIntoPandasDataFrame", j, frameName));
-	                        logDetailed(BaseMessages.getString(PKG, "CPythonScriptExecutor.Message.SampleSize", sample.size()));
-	                        
-	                        rowsToPyDataFrame(session, data.incomingRowSets.get(j).getRowMeta(), sample, frameName);
-	                        anySamplePushed = true;
-	                    }
-	                }
-	                if (anySamplePushed) {
-	                    executeScriptAndProcessResult(session, meta.isContinueOnUnsetVars());
-	                }
-	            }
-	        }
-	    } finally {
-	        if (session != null) {
-	            CPythonScriptExecutorData.releasePySession(this, data.pythonCommand, data.serverID, this);
-	        }
-	    }
+				if (executeScript) {
+					executeScriptAndProcessResult(session, meta.isContinueOnUnsetVars());
+					// Only clear the buffers that were actually sent to Python
+					for (List<Object[]> buffer : buffersToClear) {
+						buffer.clear();
+					}
+				}
+				return;
+			}
+
+			if (allDone) {
+				logDetailed(BaseMessages.getString(PKG, "CPythonScriptExecutor.Message.RetrievingReservoirs"));
+
+				int maxRows = 0;
+				List<List<Object[]>> allSamples = new ArrayList<>();
+
+				for (int j = 0; j < data.reservoirSamplers.size(); j++) {
+					List<Object[]> sample = data.reservoirSamplers.get(j).getSample();
+					CPythonScriptExecutorData.pruneNullRowsFromSample(sample);
+					allSamples.add(sample);
+
+					if (sample != null && sample.size() > maxRows) {
+						maxRows = sample.size();
+					}
+				}
+
+				if (maxRows == 0) {
+					return;
+				}
+
+				session = CPythonScriptExecutorData.acquirePySession(this, data.pythonCommand, data.serverID,
+						getLogChannel(), this);
+				session.setEnvName(getTransformName());
+				session.setUseArrow(meta.isUseArrow());
+
+				if (data.batchSize == 1) {
+					for (int rowIndex = 0; rowIndex < maxRows; rowIndex++) {
+						boolean rowPushed = false;
+
+						for (int j = 0; j < data.reservoirSamplers.size(); j++) {
+							List<Object[]> sample = allSamples.get(j);
+
+							if (sample != null && rowIndex < sample.size()) {
+								String frameName = resolve(meta.getInputFrames().get(j).getFrameName());
+
+								List<Object[]> singleRowList = new ArrayList<>(1);
+								singleRowList.add(sample.get(rowIndex));
+
+								rowsToPyDataFrame(session, data.incomingRowSets.get(j).getRowMeta(), singleRowList,
+										frameName);
+								rowPushed = true;
+							}
+						}
+						if (rowPushed) {
+							data.rowByRowReservoirSampleIndex = rowIndex;
+							executeScriptAndProcessResult(session, meta.isContinueOnUnsetVars());
+						}
+					}
+				} else {
+					boolean anySamplePushed = false;
+
+					for (int j = 0; j < data.reservoirSamplers.size(); j++) {
+						List<Object[]> sample = allSamples.get(j);
+
+						if (sample != null && !sample.isEmpty()) {
+							String frameName = resolve(meta.getInputFrames().get(j).getFrameName());
+							logDetailed(BaseMessages.getString(PKG,
+									"CPythonScriptExecutor.Message.PushingSampleFromReservoirIntoPandasDataFrame", j,
+									frameName));
+							logDetailed(BaseMessages.getString(PKG, "CPythonScriptExecutor.Message.SampleSize",
+									sample.size()));
+
+							rowsToPyDataFrame(session, data.incomingRowSets.get(j).getRowMeta(), sample, frameName);
+							anySamplePushed = true;
+						}
+					}
+					if (anySamplePushed) {
+						executeScriptAndProcessResult(session, meta.isContinueOnUnsetVars());
+					}
+				}
+			}
+		} finally {
+			if (session != null) {
+				CPythonScriptExecutorData.releasePySession(this, data.pythonCommand, data.serverID, this);
+			}
+		}
 	}
 
 	protected void executeScriptAndProcessResult(PythonSession session, boolean continueOnUnsetVars)
@@ -651,19 +655,19 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 	protected boolean checkIfPythonVariableIsSet(PythonSession session, String varName) throws HopException {
 		return session.checkIfPythonVariableIsSet(varName);
 	}
-	
+
 	@Override
 	public void dispose() {
 		if (getTransformName().equals(data.serverID) || data.serverID.startsWith(getTransformName() + "_")) {
-	        PythonSession.shutdownSession(data.pythonCommand, data.serverID);
-	    }
-	    super.dispose();
+			PythonSession.shutdownSession(data.pythonCommand, data.serverID);
+		}
+		super.dispose();
 	}
-	
+
 	@Override
 	public void stopRunning() throws HopException {
 		PythonSession.shutdownSession(data.pythonCommand, data.serverID);
-	    super.stopRunning();
+		super.stopRunning();
 	}
-	
+
 }

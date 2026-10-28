@@ -17,128 +17,127 @@ import org.apache.hop.core.row.IValueMeta;
 @ExtendWith(MockitoExtension.class)
 class ServerUtilsTest {
 	@Mock
-    private IRowMeta rowMeta;
+	private IRowMeta rowMeta;
 
-    @Mock
-    private IValueMeta valueMeta1;
+	@Mock
+	private IValueMeta valueMeta1;
 
-    @Mock
-    private IValueMeta valueMeta2;
-    
-    private static final String MISSING_VALUE = "?";
-    
-    @Test
-    void quote_DoesNotQuoteSimpleStrings() {
-        String input = "StandardString";
-        String result = ServerUtils.quote(input);
-        assertEquals("Simple strings should not be quoted", result, "StandardString");
-    }
+	@Mock
+	private IValueMeta valueMeta2;
 
-    @Test
-    void quote_QuotesStringsWithSpacesAndSpecialChars() {
-        assertEquals("'Hello World'", ServerUtils.quote("Hello World"));
-        assertEquals("''", ServerUtils.quote(""));
-        assertEquals("'Line1\\nLine2'", ServerUtils.quote("Line1\nLine2"));
-    }
+	private static final String MISSING_VALUE = "?";
 
-    @Test
-    void backQuoteChars_EscapesSpecialCharacters() {
-        String input = "Line1\nLine2\tTabbed\\Slashed\"Quoted\"";
-        String expected = "Line1\\nLine2\\tTabbed\\\\Slashed\\\"Quoted\\\"";
-        
-        String result = ServerUtils.backQuoteChars(input);
-        assertEquals(expected, result);
-    }
-    
-    
-    @Test
-    void csvToRows_ParsesValidCsvSuccessfully() throws IOException {
-        String csv = "value1,123#||#value2,456";
-        int numRows = 2;
+	@Test
+	void quote_DoesNotQuoteSimpleStrings() {
+		String input = "StandardString";
+		String result = ServerUtils.quote(input);
+		assertEquals("Simple strings should not be quoted", result, "StandardString");
+	}
 
-        when(rowMeta.size()).thenReturn(2);
-        when(rowMeta.getValueMeta(0)).thenReturn(valueMeta1);
-        when(rowMeta.getValueMeta(1)).thenReturn(valueMeta2);
-        
-        when(valueMeta1.getType()).thenReturn(IValueMeta.TYPE_STRING);
-        when(valueMeta2.getType()).thenReturn(IValueMeta.TYPE_NUMBER);
+	@Test
+	void quote_QuotesStringsWithSpacesAndSpecialChars() {
+		assertEquals("'Hello World'", ServerUtils.quote("Hello World"));
+		assertEquals("''", ServerUtils.quote(""));
+		assertEquals("'Line1\\nLine2'", ServerUtils.quote("Line1\nLine2"));
+	}
 
-        RowMetaAndRows result = ServerUtils.csvToRows(csv, rowMeta, numRows);
+	@Test
+	void backQuoteChars_EscapesSpecialCharacters() {
+		String input = "Line1\nLine2\tTabbed\\Slashed\"Quoted\"";
+		String expected = "Line1\\nLine2\\tTabbed\\\\Slashed\\\"Quoted\\\"";
 
-        assertNotNull(result);
-        assertEquals(rowMeta, result.rowMeta);
-        assertEquals(2, result.rows.length);
-        assertNotNull(result.rows[0]);
-        assertNotNull(result.rows[1]);
-    }
-    
-    @Test
-    void csvToRows_SkipsEmptyLines() throws IOException {
-        String csv = "#||##||#value1,123"; // Two empty lines, one valid line
-        int numRows = 1;
+		String result = ServerUtils.backQuoteChars(input);
+		assertEquals(expected, result);
+	}
 
-        when(rowMeta.size()).thenReturn(2);
-        when(rowMeta.getValueMeta(0)).thenReturn(valueMeta1);
-        when(rowMeta.getValueMeta(1)).thenReturn(valueMeta2);
+	@Test
+	void csvToRows_ParsesValidCsvSuccessfully() throws IOException {
+		String csv = "value1,123#||#value2,456";
+		int numRows = 2;
 
-        RowMetaAndRows result = ServerUtils.csvToRows(csv, rowMeta, numRows);
+		when(rowMeta.size()).thenReturn(2);
+		when(rowMeta.getValueMeta(0)).thenReturn(valueMeta1);
+		when(rowMeta.getValueMeta(1)).thenReturn(valueMeta2);
 
-        assertNotNull(result.rows[0]);
-        assertEquals(1, result.rows.length); // Only 1 row should be processed
-    }
-    
-    @Test
-    void csvToRows_IgnoresMissingValues() throws IOException {
-        String csv = "value1," + MISSING_VALUE; 
-        int numRows = 1;
+		when(valueMeta1.getType()).thenReturn(IValueMeta.TYPE_STRING);
+		when(valueMeta2.getType()).thenReturn(IValueMeta.TYPE_NUMBER);
 
-        when(rowMeta.size()).thenReturn(2);
-        when(rowMeta.getValueMeta(0)).thenReturn(valueMeta1);
+		RowMetaAndRows result = ServerUtils.csvToRows(csv, rowMeta, numRows);
 
-        RowMetaAndRows result = ServerUtils.csvToRows(csv, rowMeta, numRows);
+		assertNotNull(result);
+		assertEquals(rowMeta, result.rowMeta);
+		assertEquals(2, result.rows.length);
+		assertNotNull(result.rows[0]);
+		assertNotNull(result.rows[1]);
+	}
 
-        assertNotNull(result.rows[0]);
-        assertNull(result.rows[0][1]);
-    }
-    
-    @Test
-    void csvToRows_ParseCarriageReturnsAndLineFeeds() throws IOException {
-        String csv = "val\nue1,val\rue2";
-        int numRows = 1;
+	@Test
+	void csvToRows_SkipsEmptyLines() throws IOException {
+		String csv = "#||##||#value1,123"; // Two empty lines, one valid line
+		int numRows = 1;
 
-        when(rowMeta.size()).thenReturn(2);
-        when(rowMeta.getValueMeta(0)).thenReturn(valueMeta1);
-        when(valueMeta1.getType()).thenReturn(IValueMeta.TYPE_STRING); 
-        when(rowMeta.getValueMeta(1)).thenReturn(valueMeta2);
-        when(valueMeta2.getType()).thenReturn(IValueMeta.TYPE_STRING);
+		when(rowMeta.size()).thenReturn(2);
+		when(rowMeta.getValueMeta(0)).thenReturn(valueMeta1);
+		when(rowMeta.getValueMeta(1)).thenReturn(valueMeta2);
 
-        RowMetaAndRows result = ServerUtils.csvToRows(csv, rowMeta, numRows);
+		RowMetaAndRows result = ServerUtils.csvToRows(csv, rowMeta, numRows);
 
-        assertNotNull(result);
-        assertEquals( "Should have parsed exactly 1 row", 1, result.rows.length);
-        assertNotNull("Row data should not be null", result.rows[0]);
-        assertEquals("val\nue1", result.rows[0][0]);
-        assertEquals("val\rue2", result.rows[0][1]);
-    }
-    
-    @Test
-    void csvToRows_ThrowsIOExceptionOnParseFailure() {
-        String csv = "badValue,123";
-        int numRows = 1;
-        
-        when(rowMeta.size()).thenReturn(2);
-        
-        when(rowMeta.getValueMeta(0)).thenReturn(valueMeta1);
-        when(valueMeta1.getType()).thenReturn(IValueMeta.TYPE_STRING); 
-        
-        when(rowMeta.getValueMeta(1)).thenReturn(valueMeta2);
-        when(valueMeta2.getType()).thenReturn(IValueMeta.TYPE_DATE); 
-        when(valueMeta2.getName()).thenReturn("FailingColumnName");
+		assertNotNull(result.rows[0]);
+		assertEquals(1, result.rows.length); // Only 1 row should be processed
+	}
 
-        IOException exception = assertThrows(IOException.class, () -> {
-            ServerUtils.csvToRows(csv, rowMeta, numRows);
-        });
-        System.out.println(exception);
-        assertTrue(exception.getMessage().contains("Failed to parse column 'FailingColumnName' at row 1"));
-    }
+	@Test
+	void csvToRows_IgnoresMissingValues() throws IOException {
+		String csv = "value1," + MISSING_VALUE;
+		int numRows = 1;
+
+		when(rowMeta.size()).thenReturn(2);
+		when(rowMeta.getValueMeta(0)).thenReturn(valueMeta1);
+
+		RowMetaAndRows result = ServerUtils.csvToRows(csv, rowMeta, numRows);
+
+		assertNotNull(result.rows[0]);
+		assertNull(result.rows[0][1]);
+	}
+
+	@Test
+	void csvToRows_ParseCarriageReturnsAndLineFeeds() throws IOException {
+		String csv = "val\nue1,val\rue2";
+		int numRows = 1;
+
+		when(rowMeta.size()).thenReturn(2);
+		when(rowMeta.getValueMeta(0)).thenReturn(valueMeta1);
+		when(valueMeta1.getType()).thenReturn(IValueMeta.TYPE_STRING);
+		when(rowMeta.getValueMeta(1)).thenReturn(valueMeta2);
+		when(valueMeta2.getType()).thenReturn(IValueMeta.TYPE_STRING);
+
+		RowMetaAndRows result = ServerUtils.csvToRows(csv, rowMeta, numRows);
+
+		assertNotNull(result);
+		assertEquals("Should have parsed exactly 1 row", 1, result.rows.length);
+		assertNotNull("Row data should not be null", result.rows[0]);
+		assertEquals("val\nue1", result.rows[0][0]);
+		assertEquals("val\rue2", result.rows[0][1]);
+	}
+
+	@Test
+	void csvToRows_ThrowsIOExceptionOnParseFailure() {
+		String csv = "badValue,123";
+		int numRows = 1;
+
+		when(rowMeta.size()).thenReturn(2);
+
+		when(rowMeta.getValueMeta(0)).thenReturn(valueMeta1);
+		when(valueMeta1.getType()).thenReturn(IValueMeta.TYPE_STRING);
+
+		when(rowMeta.getValueMeta(1)).thenReturn(valueMeta2);
+		when(valueMeta2.getType()).thenReturn(IValueMeta.TYPE_DATE);
+		when(valueMeta2.getName()).thenReturn("FailingColumnName");
+
+		IOException exception = assertThrows(IOException.class, () -> {
+			ServerUtils.csvToRows(csv, rowMeta, numRows);
+		});
+		System.out.println(exception);
+		assertTrue(exception.getMessage().contains("Failed to parse column 'FailingColumnName' at row 1"));
+	}
 }

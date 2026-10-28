@@ -186,7 +186,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 
 		wctfContainer = new CTabFolder(shell, SWT.BORDER);
 		PropsUi.setLook(wctfContainer, Props.WIDGET_STYLE_TAB);
-		
+
 		addConfigureTab();
 		addScriptTab();
 		addFieldsTab();
@@ -273,7 +273,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 
 	private void addScriptTab() {
 		wctiScript = new CTabItem(wctfContainer, SWT.NONE);
-		wctiScript.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.ScriptTab.TabTitle")); 
+		wctiScript.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.ScriptTab.TabTitle"));
 		wcScript = new Composite(wctfContainer, SWT.NONE);
 		PropsUi.setLook(wcScript);
 		FormLayout scriptLayout = new FormLayout();
@@ -283,7 +283,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 
 		wlLoadScriptFile = new Label(wcScript, SWT.RIGHT);
 		PropsUi.setLook(wlLoadScriptFile);
-		wlLoadScriptFile.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.LoadScript.Label")); 
+		wlLoadScriptFile.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.LoadScript.Label"));
 		wlLoadScriptFile.setLayoutData(getFirstLabelFormData());
 
 		wbLoadScriptFile = new Button(wcScript, SWT.CHECK);
@@ -431,7 +431,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 	private void addFieldsTab() {
 		// --- fields tab
 		wctiFields = new CTabItem(wctfContainer, SWT.NONE);
-		wctiFields.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.FieldsTab.TabTitle")); 
+		wctiFields.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.FieldsTab.TabTitle"));
 		wcFields = new Composite(wctfContainer, SWT.NONE);
 		PropsUi.setLook(wcFields);
 		FormLayout fieldsLayout = new FormLayout();
@@ -440,7 +440,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 		wcFields.setLayout(fieldsLayout);
 
 		wlOutputFields = new Label(wcFields, SWT.LEFT);
-		wlOutputFields.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.OutFields.Label")); 
+		wlOutputFields.setText(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.OutFields.Label"));
 		PropsUi.setLook(wlOutputFields);
 		fd = new FormData();
 		fd.left = new FormAttachment(0, 0);
@@ -504,8 +504,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 				new ColumnInfo(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.OutFields.Name"),
 						ColumnInfo.COLUMN_TYPE_TEXT, false),
 				new ColumnInfo(BaseMessages.getString(PKG, "CPythonScriptExecutorDialog.OutFields.Type"),
-						ColumnInfo.COLUMN_TYPE_CCOMBO,
-						ValueMetaFactory.getAllValueMetaNames(), false) };
+						ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getAllValueMetaNames(), false) };
 
 		wtvOutputFields = new TableView(variables, wcFields, SWT.FULL_SELECTION | SWT.MULTI, colinf2, 1,
 				simpleModifyListener, props);
@@ -548,7 +547,8 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 
 	private void getFrameFields(CPythonScriptExecutorMeta meta) {
 		try {
-			// 1. Gather all incoming fields based on the saved transform names in your new POJO
+			// 1. Gather all incoming fields based on the saved transform names in your new
+			// POJO
 			IRowMeta incomingMetas = new RowMeta();
 			List<CPythonInputFrame> inputFrames = meta.getInputFrames();
 
@@ -826,16 +826,16 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 		wConfigSelection.addModifyListener(lsMod);
 
 		lastControl = wConfigSelection;
-		
+
 		wlLibraries = new Label(wgOptions, SWT.RIGHT);
-		
+
 		wlLibraries.setText(BaseMessages.getString(PKG, "CPythonScriptExecutor.Libs.Label"));
-		wlLibraries.setToolTipText(BaseMessages.getString(PKG, "CPythonScriptExecutor.TipText.Label"));
+		wlLibraries.setToolTipText(BaseMessages.getString(PKG, "CPythonScriptExecutor.Libs.TipText"));
 		PropsUi.setLook(wlLibraries);
 		wlLibraries.setLayoutData(getFirstLabelFormData());
-		
+
 		wLibraries = new TextVar(variables, wgOptions, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-		wLibraries.getTextWidget().setMessage( "lib1 lib2 lib3" );
+		wLibraries.getTextWidget().setMessage("lib1 lib2 lib3");
 		PropsUi.setLook(wLibraries);
 		FormData fd = getFirstPromptFormData(wlLibraries);
 		fd.right = new FormAttachment(95, 0);
@@ -892,7 +892,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 		setItemText(wtvScriptLocation, meta.getLoadScriptFile());
 		wbIncludeRowIndex.setSelection(meta.isIncludeRowIndex());
 		wbUseArrow.setSelection(meta.isUseArrow());
-		wConfigSelection.setText(meta.getConfigName()== null ? "" : meta.getConfigName());
+		wConfigSelection.setText(meta.getConfigName() == null ? "" : meta.getConfigName());
 
 		setInputToFramesTableFields(meta);
 		setOutputFieldsTableFields(meta);

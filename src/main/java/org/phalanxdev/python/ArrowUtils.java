@@ -286,9 +286,9 @@ public class ArrowUtils {
 		if (vector.isNull(index)) {
 			return null;
 		}
-		
+
 		Object arrowObject = vector.getObject(index);
-		
+
 		switch (valueMeta.getType()) {
 		case IValueMeta.TYPE_STRING:
 			return arrowObject.toString();
@@ -299,12 +299,12 @@ public class ArrowUtils {
 		case IValueMeta.TYPE_BIGNUMBER:
 			return new BigDecimal(arrowObject.toString());
 		case IValueMeta.TYPE_DATE:
-	        if (vector instanceof DateMilliVector) {
-	            return new Date(((DateMilliVector) vector).get(index));
-	          } else if (vector instanceof TimeStampMilliVector) {
-	            return new Date(((TimeStampMilliVector) vector).get(index));
-	          }
-	          return null;
+			if (vector instanceof DateMilliVector) {
+				return new Date(((DateMilliVector) vector).get(index));
+			} else if (vector instanceof TimeStampMilliVector) {
+				return new Date(((TimeStampMilliVector) vector).get(index));
+			}
+			return null;
 		case IValueMeta.TYPE_TIMESTAMP:
 			if (arrowObject instanceof Long) {
 				return new Timestamp((Long) arrowObject);
@@ -313,7 +313,8 @@ public class ArrowUtils {
 			}
 			return null;
 		case IValueMeta.TYPE_BOOLEAN:
-			return Boolean.TRUE.equals(arrowObject) || (arrowObject instanceof Number && ((Number) arrowObject).intValue() == 1);
+			return Boolean.TRUE.equals(arrowObject)
+					|| (arrowObject instanceof Number && ((Number) arrowObject).intValue() == 1);
 		case IValueMeta.TYPE_BINARY:
 			return vector.getObject(index);
 		default:

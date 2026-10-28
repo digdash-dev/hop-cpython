@@ -87,7 +87,7 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 	public String pythonCommand = "";
 	public String pyPathEntries = "";
 	public String serverID = "";
-	
+
 	/**
 	 * Holds the full output row meta data (including any incoming fields that are
 	 * copied to the outgoing)
@@ -233,8 +233,8 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 
 	/**
 	 * Initialise a lookup on output indexes of any fields being copied from input
-	 * to output. User may re-order output fields in the dialog for this transform, so we
-	 * need the lookup.
+	 * to output. User may re-order output fields in the dialog for this transform,
+	 * so we need the lookup.
 	 */
 	public void initNonScriptOutputIndexLookup() {
 		for (IValueMeta v : incomingFieldsIncludedInOutputRowMeta.getValueMetaList()) {
@@ -287,14 +287,15 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 
 			if (colsNotDefinedInOutputMeta.length() > 0) {
 				if (log != null && log.isDetailed())
-					log.logDetailed(
-						BaseMessages.getString(PKG, "CPythonScriptExecutor.Message.VarsOrColsNotDefinedInOutputMeta",
-								colsNotDefinedInOutputMeta.toString()));
+					log.logDetailed(BaseMessages.getString(PKG,
+							"CPythonScriptExecutor.Message.VarsOrColsNotDefinedInOutputMeta",
+							colsNotDefinedInOutputMeta.toString()));
 			}
 			if (colsInOutputMetaNotPresentInFrame.length() > 0) {
 				if (log != null && log.isDetailed())
-					log.logDebug(BaseMessages.getString(PKG, "CPythonScriptExecutor.Message.OutputFieldsNotPresentOrSet",
-						colsInOutputMetaNotPresentInFrame.toString()));
+					log.logDebug(
+							BaseMessages.getString(PKG, "CPythonScriptExecutor.Message.OutputFieldsNotPresentOrSet",
+									colsInOutputMetaNotPresentInFrame.toString()));
 			}
 		}
 
@@ -499,8 +500,8 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 	 * @throws HopException if a problem occurs
 	 */
 	public static PythonSession.RowMetaAndRows determineOutputMetaSingleVariable(Object requester,
-			List<IRowMeta> inputMetas, CPythonScriptExecutorMeta cPythonScriptExecutorMeta, CPythonConfig config, ILogChannel log,
-			IVariables vars) throws HopException {
+			List<IRowMeta> inputMetas, CPythonScriptExecutorMeta cPythonScriptExecutorMeta, CPythonConfig config,
+			ILogChannel log, IVariables vars) throws HopException {
 
 		synchronized (requester) {
 			PythonSession session = null;
@@ -530,15 +531,14 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 					throw new HopException(
 							BaseMessages.getString(PKG, "CPythonScriptExecutorData.Error.WrongNumberOfFrameNames"));
 				}
-				
+
 				if (log != null)
 					log.logDetailed(
-						BaseMessages.getString(PKG, "CPythonScriptExecutorData.Message.DeterminingOutputFormat"));
+							BaseMessages.getString(PKG, "CPythonScriptExecutorData.Message.DeterminingOutputFormat"));
 
 				Random r = new Random(1);
 
-				session = acquirePySession(requester, config.getPythonCommand(),
-						config.getServerID(), log, vars);
+				session = acquirePySession(requester, config.getPythonCommand(), config.getServerID(), log, vars);
 
 				List<List<Object[]>> randomRows = new ArrayList<List<Object[]>>();
 				if (inputMetas != null) {
@@ -553,7 +553,6 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 					}
 				}
 
-				
 				List<String> outAndErrors = session.executeScript(cPythonScriptExecutorMeta.getName(), script);
 				if (!Utils.isEmpty(outAndErrors.get(1))) {
 					throw new HopException(outAndErrors.get(1));
@@ -587,8 +586,7 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 			} catch (Exception ex) {
 				throw new HopException(ex);
 			} finally {
-				releasePySession(requester, config.getPythonCommand(),
-						config.getServerID(), vars);
+				releasePySession(requester, config.getPythonCommand(), config.getServerID(), vars);
 			}
 		}
 	}
@@ -685,13 +683,13 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 		PythonSession session;
 		try {
 			session = PythonSession.acquireSession(requester);
-			//TODO: check health here also
+			// TODO: check health here also
 		} catch (SessionException ex) {
 			throw new HopException(ex);
 		}
 
 		session.setLog(log);
-		
+
 		if (requester instanceof ITransform transform) {
 			session.setEnvName(transform.getTransformName());
 		} else if (requester != null) {
@@ -782,19 +780,19 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 			if (session != null && !session.isSessionAlive()) {
 				if (log != null)
 					log.logBasic("Detected dead Python session during acquire. Resetting...");
-	            session.resetDeadSession();
-	            session = PythonSession.acquireSession(pyCommand, sID, requester); // Re-crée un serveur tout neuf
+				session.resetDeadSession();
+				session = PythonSession.acquireSession(pyCommand, sID, requester); // Re-crée un serveur tout neuf
 			}
 		} catch (SessionException e) {
 			throw new HopException(e);
 		}
 		session.setLog(log);
-		
+
 		if (requester instanceof ITransform transform) {
-	        session.setEnvName(transform.getTransformName());
-	    } else if (requester != null) {
-	        session.setEnvName(requester.toString());
-	    }
+			session.setEnvName(transform.getTransformName());
+		} else if (requester != null) {
+			session.setEnvName(requester.toString());
+		}
 		return session;
 	}
 }
