@@ -275,7 +275,7 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 
 			List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
 			IRowMeta[] infos = new IRowMeta[infoStreams.size()];
-			data.incomingRowSets = new ArrayList<IRowSet>();
+			data.incomingRowSets = new ArrayList<>();
 
 			if (infoStreams.isEmpty()) {
 				noInputRowSets = true;
