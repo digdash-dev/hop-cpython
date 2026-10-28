@@ -144,6 +144,9 @@ public class ServerUtils {
 	 */
 	protected static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
+	private static final ObjectMapper MAPPER = new ObjectMapper();
+	
+	
 	protected static Map<String, Object> createMetadataMessage(String frameName, IRowMeta meta) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put(FRAME_NAME_KEY, frameName);
@@ -218,7 +221,6 @@ public class ServerUtils {
 			InputStream inputStream, OutputStream outputStream) throws HopException {
 
 		boolean debug = log == null || log.isDebug();
-		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> command = new HashMap<String, Object>();
 		command.put(COMMAND_KEY, VARIABLE_IS_SET_KEY);
 		command.put(VARIABLE_NAME_KEY, varName);
@@ -228,7 +230,7 @@ public class ServerUtils {
 		if (inputStream != null && outputStream != null) {
 			try {
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				mapper.writeValue(bos, command);
+				MAPPER.writeValue(bos, command);
 				byte[] bytes = bos.toByteArray();
 
 				if (debug) {
@@ -239,7 +241,7 @@ public class ServerUtils {
 				writeDelimitedToOutputStream(bytes, outputStream);
 
 				bytes = readDelimitedFromInputStream(inputStream);
-				Map<String, Object> ack = mapper.readValue(bytes, Map.class);
+				Map<String, Object> ack = MAPPER.readValue(bytes, Map.class);
 				if (!ack.get(RESPONSE_KEY).toString().equals(OK_KEY)) {
 					// fatal error
 					throw new HopException(ack.get(ERROR_MESSAGE_KEY).toString());
@@ -274,14 +276,13 @@ public class ServerUtils {
 	protected static boolean pingServer(String pythonServerIDString, ILogChannel log, InputStream inputStream,
 			OutputStream outputStream) {
 		boolean debug = log == null || log.isDebug();
-		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> command = new HashMap<String, Object>();
 		command.put(COMMAND_KEY, PING_KEY);
 
 		if (inputStream != null && outputStream != null) {
 			try {
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				mapper.writeValue(bos, command);
+				MAPPER.writeValue(bos, command);
 				byte[] bytes = bos.toByteArray();
 
 				if (debug) {
@@ -292,7 +293,7 @@ public class ServerUtils {
 				writeDelimitedToOutputStream(bytes, outputStream);
 
 				bytes = readDelimitedFromInputStream(inputStream);
-				Map<String, Object> ack = mapper.readValue(bytes, new TypeReference<Map<String, Object>>() {
+				Map<String, Object> ack = MAPPER.readValue(bytes, new TypeReference<Map<String, Object>>() {
 				});
 				// We will either get a response or we won't (i.e. some kind of comms error will
 				// result
@@ -349,7 +350,6 @@ public class ServerUtils {
 
 		boolean debug = log == null || log.isDebug();
 		String objectValue = "";
-		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> command = new HashMap<String, Object>();
 		command.put(COMMAND_KEY, GET_VARIABLE_VALUE_KEY);
 		command.put(VARIABLE_NAME_KEY, varName);
@@ -360,7 +360,7 @@ public class ServerUtils {
 		if (inputStream != null && outputStream != null) {
 			try {
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				mapper.writeValue(bos, command);
+				MAPPER.writeValue(bos, command);
 				byte[] bytes = bos.toByteArray();
 
 				if (debug) {
@@ -371,7 +371,7 @@ public class ServerUtils {
 				writeDelimitedToOutputStream(bytes, outputStream);
 
 				bytes = readDelimitedFromInputStream(inputStream);
-				Map<String, Object> ack = mapper.readValue(bytes, Map.class);
+				Map<String, Object> ack = MAPPER.readValue(bytes, Map.class);
 				if (!ack.get(RESPONSE_KEY).toString().equals(OK_KEY)) {
 					// fatal error
 					throw new HopException(ack.get(ERROR_MESSAGE_KEY).toString());
@@ -407,7 +407,6 @@ public class ServerUtils {
 			InputStream inputStream, ILogChannel log) throws HopException {
 
 		boolean debug = log == null || log.isDebug();
-		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> command = new HashMap<String, Object>();
 		command.put(COMMAND_KEY, GET_IMAGE_KEY);
 		command.put(VARIABLE_NAME_KEY, varName);
@@ -417,7 +416,7 @@ public class ServerUtils {
 		if (inputStream != null && outputStream != null) {
 			try {
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				mapper.writeValue(bos, command);
+				MAPPER.writeValue(bos, command);
 				byte[] bytes = bos.toByteArray();
 
 				if (debug) {
@@ -428,7 +427,7 @@ public class ServerUtils {
 
 				bytes = readDelimitedFromInputStream(inputStream);
 
-				Map<String, Object> ack = mapper.readValue(bytes, Map.class);
+				Map<String, Object> ack = MAPPER.readValue(bytes, Map.class);
 				if (!ack.get(RESPONSE_KEY).toString().equals(OK_KEY)) {
 					// fatal error
 					throw new HopException(ack.get(ERROR_MESSAGE_KEY).toString());
@@ -482,7 +481,6 @@ public class ServerUtils {
 		}
 		List<String> outAndErr = new ArrayList<String>();
 
-		ObjectMapper mapper = new ObjectMapper();
 		boolean debug = log == null || log.isDebug();
 		Map<String, Object> command = new HashMap<String, Object>();
 		command.put("command", "execute_script");
@@ -492,7 +490,7 @@ public class ServerUtils {
 		if (inputStream != null && outputStream != null) {
 			try {
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				mapper.writeValue(bos, command);
+				MAPPER.writeValue(bos, command);
 				byte[] bytes = bos.toByteArray();
 
 				if (debug) {
@@ -503,7 +501,7 @@ public class ServerUtils {
 				// get the result of execution
 				bytes = readDelimitedFromInputStream(inputStream);
 
-				Map<String, Object> ack = mapper.readValue(bytes, Map.class);
+				Map<String, Object> ack = MAPPER.readValue(bytes, Map.class);
 				if (!ack.get(RESPONSE_KEY).toString().equals(OK_KEY)) {
 					// fatal error
 					throw new HopException(ack.get(ERROR_MESSAGE_KEY).toString());
@@ -553,7 +551,6 @@ public class ServerUtils {
 	 */
 	protected static void sendRowsToPandasDataFrame(String envName, ILogChannel log, IRowMeta meta, List<Object[]> rows,
 			String frameName, OutputStream outputStream, InputStream inputStream) throws HopException {
-		ObjectMapper mapper = new ObjectMapper();
 
 		boolean debug = log == null || log.isDebug();
 		Map<String, Object> metaData = createMetadataMessage(frameName, meta);
@@ -579,7 +576,7 @@ public class ServerUtils {
 				}
 
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				mapper.writeValue(bos, command);
+				MAPPER.writeValue(bos, command);
 				byte[] bytes = bos.toByteArray();
 
 				if (debug) {
@@ -633,7 +630,6 @@ public class ServerUtils {
 			boolean includeRowIndex, OutputStream outputStream, InputStream inputStream) throws HopException {
 
 		boolean debug = log == null || log.isDebug();
-		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> command = new HashMap<String, Object>();
 		command.put(COMMAND_KEY, GET_FRAME_COMMAND);
 		command.put(FRAME_NAME_KEY, frameName);
@@ -645,7 +641,7 @@ public class ServerUtils {
 		if (inputStream != null && outputStream != null) {
 			try {
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				mapper.writeValue(bos, command);
+				MAPPER.writeValue(bos, command);
 				byte[] bytes = bos.toByteArray();
 
 				if (debug) {
@@ -660,7 +656,7 @@ public class ServerUtils {
 
 				// read the header
 				bytes = readDelimitedFromInputStream(inputStream);
-				Map<String, Object> headerResponse = mapper.readValue(bytes, Map.class);
+				Map<String, Object> headerResponse = MAPPER.readValue(bytes, Map.class);
 				if (headerResponse == null) {
 					throw new HopException(BaseMessages.getString(PKG, "ServerUtils.Error.HeaderMetadataMapIsNull"));
 				}
@@ -1077,8 +1073,7 @@ public class ServerUtils {
 	@SuppressWarnings("unchecked")
 	protected static String receiveServerAck(InputStream inputStream) throws IOException {
 		byte[] bytes = readDelimitedFromInputStream(inputStream);
-		ObjectMapper mapper = new ObjectMapper();
-		Map<String, Object> ack = mapper.readValue(bytes, Map.class);
+		Map<String, Object> ack = MAPPER.readValue(bytes, Map.class);
 
 		String response = ack.get(RESPONSE_KEY).toString();
 		if (response.equals(OK_KEY)) {
@@ -1098,8 +1093,7 @@ public class ServerUtils {
 	@SuppressWarnings("unchecked")
 	protected static int receiveServerPIDAck(InputStream inputStream) throws IOException {
 		byte[] bytes = readDelimitedFromInputStream(inputStream);
-		ObjectMapper mapper = new ObjectMapper();
-		Map<String, Object> ack = mapper.readValue(bytes, Map.class);
+		Map<String, Object> ack = MAPPER.readValue(bytes, Map.class);
 
 		String response = ack.get(RESPONSE_KEY).toString();
 		if (response.equals(PID_RESPONSE_KEY)) {
@@ -1115,8 +1109,7 @@ public class ServerUtils {
 	@SuppressWarnings("unchecked")
 	protected static Map<String, Object> receiveServerInitResponse(InputStream inputStream) throws IOException {
 		byte[] bytes = readDelimitedFromInputStream(inputStream);
-		ObjectMapper mapper = new ObjectMapper();
-		Map<String, Object> ack = mapper.readValue(bytes, Map.class);
+		Map<String, Object> ack = MAPPER.readValue(bytes, Map.class);
 
 		String response = ack.get(RESPONSE_KEY).toString();
 		if (response.equals(PID_RESPONSE_KEY)) {
@@ -1146,7 +1139,6 @@ public class ServerUtils {
 		List<String> stdOutStdErr = new ArrayList<String>();
 
 		boolean debug = log == null || log.isDebug();
-		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> command = new HashMap<String, Object>();
 		command.put("command", "get_debug_buffer");
 		command.put("env_name", envName != null ? envName : "default_env");
@@ -1157,14 +1149,14 @@ public class ServerUtils {
 					outputCommandDebug(command, log);
 				}
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				mapper.writeValue(bos, command);
+				MAPPER.writeValue(bos, command);
 				byte[] bytes = bos.toByteArray();
 
 				// write the command
 				writeDelimitedToOutputStream(bytes, outputStream);
 
 				bytes = readDelimitedFromInputStream(inputStream);
-				Map<String, Object> ack = mapper.readValue(bytes, Map.class);
+				Map<String, Object> ack = MAPPER.readValue(bytes, Map.class);
 				if (!ack.get("response").toString().equals("ok")) {
 					// fatal error
 					throw new HopException(ack.get(ERROR_MESSAGE_KEY).toString());
@@ -1198,7 +1190,6 @@ public class ServerUtils {
 			InputStream inputStream, ILogChannel log) throws HopException {
 
 		boolean debug = log == null || log.isDebug();
-		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> command = new HashMap<String, Object>();
 		command.put(COMMAND_KEY, GET_VARIABLE_TYPE_KEY);
 		command.put(VARIABLE_NAME_KEY, varName);
@@ -1211,14 +1202,14 @@ public class ServerUtils {
 					outputCommandDebug(command, log);
 				}
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				mapper.writeValue(bos, command);
+				MAPPER.writeValue(bos, command);
 				byte[] bytes = bos.toByteArray();
 
 				// write the command
 				writeDelimitedToOutputStream(bytes, outputStream);
 
 				bytes = readDelimitedFromInputStream(inputStream);
-				Map<String, Object> ack = mapper.readValue(bytes, Map.class);
+				Map<String, Object> ack = MAPPER.readValue(bytes, Map.class);
 				if (!ack.get(RESPONSE_KEY).toString().equals(OK_KEY)) {
 					// fatal error
 					throw new HopException(ack.get(ERROR_MESSAGE_KEY).toString());
@@ -1258,8 +1249,7 @@ public class ServerUtils {
 		command.put("command", "shutdown");
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.writeValue(bos, command);
+			MAPPER.writeValue(bos, command);
 			byte[] bytes = bos.toByteArray();
 
 			// write the command
@@ -1276,10 +1266,9 @@ public class ServerUtils {
 	 * @param log     optional log
 	 */
 	protected static void outputCommandDebug(Map<String, Object> command, ILogChannel log) throws HopException {
-		ObjectMapper mapper = new ObjectMapper();
 		StringWriter sw = new StringWriter();
 		try {
-			mapper.writeValue(sw, command);
+			MAPPER.writeValue(sw, command);
 			String serialized = sw.toString();
 			if (log != null) {
 				log.logDebug("Sending command:\n" + serialized);
@@ -1306,7 +1295,6 @@ public class ServerUtils {
 	protected static void sendRowsToPandasDataFrameArrow(String envName, ILogChannel log, IRowMeta meta,
 			List<Object[]> rows, String frameName, OutputStream outputStream, InputStream inputStream, BufferAllocator allocator)
 			throws HopException {
-		ObjectMapper mapper = new ObjectMapper();
 
 		boolean debug = log == null || log.isDebug();
 		Map<String, Object> metaData = createMetadataMessage(frameName, meta);
@@ -1321,7 +1309,7 @@ public class ServerUtils {
 		if (inputStream != null && outputStream != null) {
 			try {
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				mapper.writeValue(bos, command);
+				MAPPER.writeValue(bos, command);
 				byte[] bytes = bos.toByteArray();
 
 				if (debug) {
@@ -1388,10 +1376,9 @@ public class ServerUtils {
 		RowMetaAndRows result = null;
 
 		if (inputStream != null && outputStream != null) {
-			ObjectMapper mapper = new ObjectMapper();
 			try {
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				mapper.writeValue(bos, command);
+				MAPPER.writeValue(bos, command);
 				byte[] bytes = bos.toByteArray();
 
 				if (debug) {
@@ -1408,7 +1395,7 @@ public class ServerUtils {
 
 				// get the row meta response
 				bytes = readDelimitedFromInputStream(inputStream);
-				Map<String, Object> metaResponse = mapper.readValue(bytes, Map.class);
+				Map<String, Object> metaResponse = MAPPER.readValue(bytes, Map.class);
 				if (debug) {
 					log.logDebug("Received metadata response with " + metaResponse.get(NUM_ROWS_KEY) + " rows");
 				}
