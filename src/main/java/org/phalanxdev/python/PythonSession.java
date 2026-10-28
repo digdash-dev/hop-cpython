@@ -56,6 +56,7 @@ import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -441,7 +442,7 @@ public class PythonSession {
 		String script = getLaunchScript(pathEntries, "pyServer.py", windows, serverSocket.getLocalPort(),
 				debug ? "debug" : "");
 		if (debug) {
-			System.err.println("Executing server launch script:\n\n" + script);
+			log.logDebug("Executing server launch script:\n\n" + script);
 		}
 
 		File scriptFile = File.createTempFile("pyserver_", windows ? ".bat" : ".sh");
@@ -715,6 +716,7 @@ public class PythonSession {
 				if (log != null) {
 					log.logBasic("Python server connected successfully");
 				}
+				localSocket.setSoTimeout(720000);
 			} catch (IOException e) {
 				if (log != null) {
 					log.logError("Failed to accept connection from Python server: " + e.getMessage());
@@ -814,7 +816,7 @@ public class PythonSession {
 						if (log != null) {
 							log.logError("Python server error: " + line);
 						} else {
-							System.err.println("Python server error: " + line);
+							LogChannel.UI.logError("Python server error: " + line);
 						}
 					}
 				} catch (IOException e) {
@@ -1025,7 +1027,8 @@ public class PythonSession {
 					localSocket.getOutputStream(), localSocket.getInputStream());
 		} catch (Exception ex) {
 			if (isSocketError(ex)) {
-				System.err.println("PythonSession catching socket death. Resetting THIS session...");
+				if (log != null)
+					log.logDebug("PythonSession catching socket death. Resetting THIS session...");
 				this.resetDeadSession();
 				throw new HopException(
 						"The connection to the Python server was lost. The session has been safely reset for your next run.",
@@ -1053,7 +1056,8 @@ public class PythonSession {
 					localSocket.getOutputStream(), localSocket.getInputStream());
 		} catch (Exception ex) {
 			if (isSocketError(ex)) {
-				System.err.println("PythonSession catching socket death. Resetting THIS session...");
+				if (log != null && log.isDebug())
+					log.logDebug("PythonSession catching socket death. Resetting THIS session...");
 				this.resetDeadSession();
 				throw new HopException(
 						"The connection to the Python server was lost. The session has been safely reset for your next run.",
@@ -1089,7 +1093,8 @@ public class PythonSession {
 			}
 		} catch (Exception ex) {
 			if (isSocketError(ex)) {
-				System.err.println("PythonSession catching socket death. Resetting THIS session...");
+				if (log != null && log.isDebug())
+					log.logDebug("PythonSession catching socket death. Resetting THIS session...");
 				this.resetDeadSession();
 				throw new HopException(
 						"The connection to the Python server was lost. The session has been safely reset for your next run.",
@@ -1125,7 +1130,8 @@ public class PythonSession {
 			}
 		} catch (Exception ex) {
 			if (isSocketError(ex)) {
-				System.err.println("PythonSession catching socket death. Resetting THIS session...");
+				if (log != null && log.isDebug())
+					log.logDebug("PythonSession catching socket death. Resetting THIS session...");
 				this.resetDeadSession();
 				throw new HopException(
 						"The connection to the Python server was lost. The session has been safely reset for your next run.",
@@ -1232,7 +1238,8 @@ public class PythonSession {
 					localSocket.getInputStream(), log);
 		} catch (Exception ex) {
 			if (isSocketError(ex)) {
-				System.err.println("PythonSession catching socket death. Reseting THIS session...");
+				if (log != null && log.isDebug())
+					log.logDebug("PythonSession catching socket death. Reseting THIS session...");
 				this.resetDeadSession();
 				throw new HopException(
 						"The connection to the Python server was lost. The session has been safely reset for your next run.",
@@ -1342,7 +1349,7 @@ public class PythonSession {
 
 				if (localSocket != null) {
 					if (log == null) {
-						System.err.println("Sending shutdown command...");
+						LogChannel.UI.logDebug("Sending shutdown command...");
 					} else if (log.isDebug()) {
 						log.logDebug("Sending shutdown command...");
 					}
@@ -1353,14 +1360,14 @@ public class PythonSession {
 								localSocket.getInputStream(), log);
 						if (outAndErr.get(0).length() > 0) {
 							if (log == null) {
-								System.err.println("Python debug std out:\n" + outAndErr.get(0) + "\n");
+								LogChannel.UI.logDebug("Python debug std out:\n" + outAndErr.get(0) + "\n");
 							} else {
 								log.logDebug("Python debug std out:\n" + outAndErr.get(0) + "\n");
 							}
 						}
 						if (outAndErr.get(1).length() > 0) {
 							if (log == null) {
-								System.err.println("Python debug std err:\n" + outAndErr.get(1) + "\n");
+								LogChannel.UI.logDebug("Python debug std err:\n" + outAndErr.get(1) + "\n");
 							} else {
 								log.logDebug("Python debug std err:\n" + outAndErr.get(1) + "\n");
 							}
@@ -1410,7 +1417,7 @@ public class PythonSession {
 			if (log != null) {
 				log.logBasic("Fatal socket error detected. Resetting session: " + sessionKey);
 			} else {
-				System.err.println("Fatal socket error detected. Resetting session: " + sessionKey);
+				LogChannel.UI.logDebug("Fatal socket error detected. Resetting session: " + sessionKey);
 			}
 			this.shutdown();
 		} catch (Exception e) {

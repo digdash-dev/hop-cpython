@@ -32,6 +32,7 @@ import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -172,7 +173,7 @@ public class CPythonScriptExecutor extends BaseTransform<CPythonScriptExecutorMe
 				if (log != null) {
 					log.logError("Warning: pip install returned exit code " + exitCode + ":\n" + fullOutput);
 				} else {
-					System.err.println("pip install failed with exit code " + exitCode + ":\n" + fullOutput);
+					LogChannel.UI.logError("Warning: pip install failed with exit code " + exitCode + ":\n" + fullOutput);
 				}
 			}
 		} catch (Exception e) {

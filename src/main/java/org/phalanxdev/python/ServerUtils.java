@@ -30,6 +30,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -302,7 +303,7 @@ public class ServerUtils {
 					if (log != null) {
 						log.logError("Unable to ping python server " + pythonServerIDString);
 					} else {
-						System.err.println("Unable to ping python server " + pythonServerIDString);
+						LogChannel.UI.logError("Unable to ping python server " + pythonServerIDString);
 					}
 					return false;
 				}
@@ -516,8 +517,8 @@ public class ServerUtils {
 						log.logDebug(BaseMessages.getString(PKG, "ServerUtils.Message.ScriptError") + "\n"
 								+ outAndErr.get(1));
 					} else {
-						System.err.println("Script output:\n" + outAndErr.get(0));
-						System.err.println("\nScript error:\n" + outAndErr.get(1));
+						LogChannel.UI.logDebug("Script output:\n" + outAndErr.get(0));
+						LogChannel.UI.logDebug("\nScript error:\n" + outAndErr.get(1));
 					}
 				}
 
@@ -602,7 +603,10 @@ public class ServerUtils {
 				}
 			} catch (IOException ex) {
 				if (isSocketDeath(ex)) {
-					System.err.println("Socket death detected during DATA TRANSFER. Resetting Python server...");
+					if (log != null)
+						log.logError("Socket death detected during DATA TRANSFER. Resetting Python server...");
+					else
+						LogChannel.UI.logError("Socket death detected during DATA TRANSFER. Resetting Python server...");
 					throw new HopException("FATAL_SOCKET_DEATH: Python server connection lost.", ex);
 				}
 
@@ -665,7 +669,7 @@ public class ServerUtils {
 						log.logDebug(BaseMessages.getString(PKG, "ServerUtils.Message.ReceivedMetadataResponse",
 								headerResponse.get(NUM_ROWS_KEY)));
 					} else {
-						System.err.println(BaseMessages.getString(PKG, "ServerUtils.Message.ReceivedMetadataResponse",
+						LogChannel.UI.logDebug(BaseMessages.getString(PKG, "ServerUtils.Message.ReceivedMetadataResponse",
 								headerResponse.get(NUM_ROWS_KEY)));
 					}
 				} else {
@@ -682,7 +686,10 @@ public class ServerUtils {
 				result = csvToRows(csv, convertedMeta, numRows);
 			} catch (IOException ex) {
 				if (isSocketDeath(ex)) {
-					System.err.println("Socket death detected during DATA TRANSFER. Resetting Python server...");
+					if (log != null)
+						log.logError("Socket death detected during DATA TRANSFER. Resetting Python server...");
+					else
+						LogChannel.UI.logError("Socket death detected during DATA TRANSFER. Resetting Python server...");
 					throw new HopException("FATAL_SOCKET_DEATH: Python server connection lost.", ex);
 				}
 
@@ -1273,8 +1280,8 @@ public class ServerUtils {
 			if (log != null) {
 				log.logDebug("Sending command:\n" + serialized);
 			} else {
-				System.err.println("Sending command: ");
-				System.err.println(serialized);
+				LogChannel.UI.logDebug("Sending command: ");
+				LogChannel.UI.logDebug(serialized);
 			}
 		} catch (IOException ex) {
 			throw new HopException(ex);
@@ -1336,7 +1343,10 @@ public class ServerUtils {
 				}
 			} catch (IOException ex) {
 				if (isSocketDeath(ex)) {
-					System.err.println("Socket death detected during DATA TRANSFER. Resetting Python server...");
+					if (log != null)
+						log.logError("Socket death detected during DATA TRANSFER. Resetting Python server...");
+					else
+						LogChannel.UI.logError("Socket death detected during DATA TRANSFER. Resetting Python server...");
 					throw new HopException("FATAL_SOCKET_DEATH: Python server connection lost.", ex);
 				}
 
@@ -1410,7 +1420,10 @@ public class ServerUtils {
 				}
 			} catch (IOException ex) {
 				if (isSocketDeath(ex)) {
-					System.err.println("Socket death detected during DATA TRANSFER. Resetting Python server...");
+					if (log != null)
+						log.logError("Socket death detected during DATA TRANSFER. Resetting Python server...");
+					else
+						LogChannel.UI.logError("Socket death detected during DATA TRANSFER. Resetting Python server...");
 					throw new HopException("FATAL_SOCKET_DEATH: Python server connection lost.", ex);
 				}
 

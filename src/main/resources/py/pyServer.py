@@ -174,7 +174,7 @@ def receive_rows_arrow(message):
             while len(arrow_data) < size:
                 chunk = _global_connection.recv(min(size - len(arrow_data), 65536))
                 if not chunk:
-                    break
+                    sys.exit(0)
                 arrow_data += chunk
             
             # Convert Arrow to pandas DataFrame
