@@ -119,17 +119,17 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 	/**
 	 * A collection of the frame buffers per input frame
 	 */
-	protected List<List<Object[]>> frameBuffers = new ArrayList<List<Object[]>>();
+	protected List<List<Object[]>> frameBuffers = new ArrayList<>();
 
 	/**
 	 * Holds the reservoir samplers
 	 */
-	protected List<ReservoirSamplingData> reservoirSamplers = new ArrayList<ReservoirSamplingData>();
+	protected List<ReservoirSamplingData> reservoirSamplers = new ArrayList<>();
 
 	/**
 	 * Holds the row meta associated with each frame buffer or reservoir sampler
 	 */
-	protected List<IRowMeta> infoMetas = new ArrayList<IRowMeta>();
+	protected List<IRowMeta> infoMetas = new ArrayList<>();
 
 	/**
 	 * A index used to reference a line for the incoming rows when we are processing
@@ -174,7 +174,7 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 	 * Variables to retrieve or columns present in pandas data frame that are not
 	 * defined in the output meta
 	 */
-	protected List<String> varsOrColsNotDefinedInOutputMeta = new ArrayList<String>();
+	protected List<String> varsOrColsNotDefinedInOutputMeta = new ArrayList<>();
 
 	/**
 	 * Variables or columns defined in the output meta that are not present in the
@@ -182,14 +182,14 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 	 * (based on input values) could dictate that some variables are not set or
 	 * dataframe columns not generated for some reason.
 	 */
-	protected List<String> varsOrColsInOutputMetaNotPresent = new ArrayList<String>();
+	protected List<String> varsOrColsInOutputMetaNotPresent = new ArrayList<>();
 
 	protected boolean first = true;
 
 	/**
 	 * holds any unset variables for a script execution
 	 */
-	protected List<String> unsetVars = new ArrayList<String>();
+	protected List<String> unsetVars = new ArrayList<>();
 
 	protected Set<String> tmpSet = new HashSet<String>();
 
@@ -436,8 +436,8 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 	 * @throws HopException if a problem occurs
 	 */
 	protected static List<Object[]> generateRandomRows(IRowMeta inputMeta, Random r) throws HopException {
-		List<Object[]> rows = new ArrayList<Object[]>(NUM_RANDOM_ROWS);
-		IValueMeta numericVM = ValueMetaFactory.createValueMeta("num", IValueMeta.TYPE_NUMBER); //$NON-NLS-1$
+		List<Object[]> rows = new ArrayList<>(NUM_RANDOM_ROWS);
+		IValueMeta numericVM = ValueMetaFactory.createValueMeta("num", IValueMeta.TYPE_NUMBER);
 
 		for (int i = 0; i < NUM_RANDOM_ROWS; i++) {
 			Object[] currentRow = new Object[inputMeta.size()];
@@ -540,7 +540,7 @@ public class CPythonScriptExecutorData extends BaseTransformData implements ITra
 
 				session = acquirePySession(requester, config.getPythonCommand(), config.getServerID(), log, vars);
 
-				List<List<Object[]>> randomRows = new ArrayList<List<Object[]>>();
+				List<List<Object[]>> randomRows = new ArrayList<>();
 				if (inputMetas != null) {
 					for (int i = 0; i < inputMetas.size(); i++) {
 						IRowMeta currentMeta = inputMetas.get(i);
