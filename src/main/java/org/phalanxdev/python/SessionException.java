@@ -45,9 +45,7 @@ public class SessionException extends Exception implements Serializable {
 	}
 
 	public SessionException(String message, Throwable cause) {
-		this(message);
-		initCause(cause);
-		fillInStackTrace();
+		super(message, cause);
 	}
 
 	public SessionException(Throwable cause) {
