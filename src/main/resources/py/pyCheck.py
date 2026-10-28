@@ -1,7 +1,7 @@
 import sys
 import os
 
-python_version_min = '2.7.0'
+python_version_min = '3.6.0'
 pandas_version_min = '0.7.0'
 
 global_results = ''
@@ -69,11 +69,7 @@ def output_library_version(library_name, display_name=None):
 
 def check_libraries():
     check_min_python()
-    isPython3 = sys.version_info >= (3, 0)
-    if isPython3:
-        check_library('io')
-    else:
-        check_library('StringIO')
+    check_library('io')
     check_library('math')
     check_library('traceback')
     check_library('socket')
