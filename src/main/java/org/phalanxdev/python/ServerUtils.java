@@ -1406,7 +1406,7 @@ public class ServerUtils {
 				// get the row meta response
 				bytes = readDelimitedFromInputStream(inputStream);
 				Map<String, Object> metaResponse = MAPPER.readValue(bytes, Map.class);
-				if (debug) {
+				if (log != null && debug) {
 					log.logDebug("Received metadata response with " + metaResponse.get(NUM_ROWS_KEY) + " rows");
 				}
 
