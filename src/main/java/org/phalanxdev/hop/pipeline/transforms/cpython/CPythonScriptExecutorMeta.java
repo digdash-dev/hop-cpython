@@ -68,28 +68,6 @@ public class CPythonScriptExecutorMeta extends BaseTransformMeta<CPythonScriptEx
 
 	private static Class<?> PKG = CPythonScriptExecutor.class;
 
-	protected static final String ROWS_TO_PROCESS_TAG = "rows_to_process";
-	protected static final String ROWS_TO_PROCESS_SIZE_TAG = "rows_to_process_size";
-	protected static final String RESERVOIR_SAMPLING_TAG = "reservoir_sampling";
-	protected static final String RESERVOIR_SAMPLING_SIZE_TAG = "reservoir_sampling_size";
-	protected static final String RESERVOIR_SAMPLING_SEED_TAG = "reservoir_sampling_seed";
-	protected static final String INCLUDE_INPUT_AS_OUTPUT_TAG = "include_input_as_output";
-	protected static final String INCLUDE_FRAME_ROW_INDEX_AS_OUTPUT_FIELD_TAG = "include_frame_row_index";
-	protected static final String LOAD_SCRIPT_AT_RUNTIME_TAG = "load_script_at_runtime";
-	protected static final String SCRIPT_TO_LOAD_TAG = "script_to_load";
-	protected static final String SCRIPT_TAG = "py_script";
-	protected static final String FRAME_NAMES_TAG = "frame_names";
-	protected static final String PY_VARS_TO_GET_TAG = "py_vars_to_get";
-	protected static final String CONTINUE_ON_UNSET_VARS_TAG = "continue_on_unset_vars";
-	protected static final String SINGLE_FRAME_NAME_PREFIX_TAG = "frame_name";
-	protected static final String INCOMING_transform_NAMES_TAG = "incoming_transform_names";
-	protected static final String SINGLE_INCOMING_transform_NAME_TAG = "transform_name";
-	protected static final String OUTPUT_FIELDS_TAG = "output_fields";
-	protected static final String SINGLE_OUTPUT_FIELD_TAG = "output_field";
-	protected static final String PYTHON_COMMAND = "python_command";
-	protected static final String PYTHON_PATH_ENTRIES = "python_path_entries";
-	protected static final String PYTHON_SERVER_ID = "python_server_id";
-
 	/**
 	 * Default prefix for hop data -> pandas frame name
 	 */
