@@ -810,7 +810,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 	}
 
 	private void addPythonOptions() {
-		wConfigSelection = new MetaSelectionLine<CPythonConfig>(variables, getMetadataProvider(), CPythonConfig.class,
+		wConfigSelection = new MetaSelectionLine<>(variables, getMetadataProvider(), CPythonConfig.class,
 				wgOptions, SWT.NONE, BaseMessages.getString(PKG, "CPythonScriptExecutor.ConfigSelection.Label"),
 				BaseMessages.getString(PKG, "CPythonScriptExecutor.ConfigSelection.TipText"));
 		PropsUi.setLook(wConfigSelection);
@@ -950,7 +950,7 @@ public class CPythonScriptExecutorDialog extends BaseTransformDialog implements 
 	}
 
 	private List<String> stringToList(String list) {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		for (String s : list.split(",")) {
 			if (!Utils.isEmpty(s.trim())) {
 				result.add(s.trim());
