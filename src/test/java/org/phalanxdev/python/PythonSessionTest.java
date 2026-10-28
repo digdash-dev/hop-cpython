@@ -15,6 +15,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,25 @@ class PythonSessionTest {
 	private static final String ENV_NAME = "test_env";
 	private static String pythonPath;
 
+	private IRowMeta createSampleRowMeta() throws Exception {
+		IRowMeta rowMeta = new RowMeta();
+		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field1", IValueMeta.TYPE_INTEGER));
+		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field2", IValueMeta.TYPE_NUMBER));
+		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field3", IValueMeta.TYPE_STRING));
+		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field4", IValueMeta.TYPE_BOOLEAN));
+		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field5", IValueMeta.TYPE_DATE));
+		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field6", IValueMeta.TYPE_TIMESTAMP));
+		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("NullField", IValueMeta.TYPE_STRING));
+		return rowMeta;
+	}
+
+	private List<Object[]> createSampleRows() {
+		Object[] rowData = { 22L, 300.22, "Hello bob", false, new Date(), new Timestamp(System.currentTimeMillis()), null };
+		List<Object[]> rows = new ArrayList<>();
+		rows.add(rowData);
+		return rows;
+	}
+	
 	@BeforeAll
 	public static void initHopEnvironment() throws Exception {
 		// 1. Initialize Hop plugin registry for ValueMeta types
@@ -36,16 +56,14 @@ class PythonSessionTest {
 		// 2. Resolve Python executable (prioritize CLI/JVM property, then venv, then
 		// fallback)
 		String propPath = System.getProperty("python.test.path");
+		String envPath = System.getenv("HOP_CPYTHON_COMMAND"); 
+		
 		if (propPath != null && new File(propPath).exists()) {
 			pythonPath = propPath;
+		} else if (envPath != null && new File(envPath).exists()) {
+			pythonPath = envPath;
 		} else {
-			// Default to your local venv path or standard python binary
-			File venvPython = new File("/home/cbuat/work/hop-cpython/hop-cpython-env/bin/python3");
-			if (venvPython.exists()) {
-				pythonPath = venvPython.getAbsolutePath();
-			} else {
-				pythonPath = "python3";
-			}
+			pythonPath = System.getProperty("os.name").toLowerCase().contains("win") ? "python" : "python3";
 		}
 	}
 
@@ -59,6 +77,11 @@ class PythonSessionTest {
 	public void tearDown() {
 		PythonSession.releaseSession(REQUESTER);
 	}
+	
+	@AfterAll
+	public static void shutDownServer() {
+		PythonSession.shutdownSession(pythonPath, null);
+	}
 
 	@Test
 	@DisplayName("Verify DataFrame transfer, isolated execution, and type inspection")
@@ -70,20 +93,9 @@ class PythonSessionTest {
 		session.setEnvName(ENV_NAME);
 
 		// 1. Create sample metadata and row data (Long for Hop Integer)
-		IRowMeta rowMeta = new RowMeta();
-		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field1", IValueMeta.TYPE_INTEGER));
-		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field2", IValueMeta.TYPE_NUMBER));
-		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field3", IValueMeta.TYPE_STRING));
-		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field4", IValueMeta.TYPE_BOOLEAN));
-		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field5", IValueMeta.TYPE_DATE));
-		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field6", IValueMeta.TYPE_TIMESTAMP));
-		rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("NullField", IValueMeta.TYPE_STRING));
+		IRowMeta rowMeta = createSampleRowMeta();
 
-		Object[] rowData = { 22L, 300.22, "Hello bob", false, new Date(), new Timestamp(System.currentTimeMillis()),
-				null };
-
-		List<Object[]> rows = new ArrayList<>();
-		rows.add(rowData);
+		List<Object[]> rows = createSampleRows();
 
 		// 2. Send DataFrame to Python
 		session.rowsToPythonDataFrame(rowMeta, rows, "In");
@@ -132,5 +144,25 @@ class PythonSessionTest {
 		}, "Recovered server must execute commands cleanly without Broken Pipe");
 
 		assertTrue(recoveredSession.checkIfPythonVariableIsSet("y"), "Variable 'y' must exist in recovered session");
+	}
+	
+	@Test
+	@DisplayName("Verify Arrow IPC DataFrame transfer and BufferAllocator stability")
+	public void testArrowDataFrameTransfer() throws Exception {
+		PythonSession session = PythonSession.acquireSession(REQUESTER);
+		session.setEnvName(ENV_NAME);
+		session.setUseArrow(true); // Ensure Arrow is active
+
+		// Use the same rowMeta and rowData generation as your other test
+		IRowMeta rowMeta = createSampleRowMeta(); 
+		List<Object[]> rows = createSampleRows();
+
+		// Send and receive using the Arrow methods
+		session.rowsToPythonDataFrameWithArrow(rowMeta, rows, "ArrowIn");
+		assertTrue(session.checkIfPythonVariableIsSet("ArrowIn"), "Variable 'ArrowIn' missing");
+
+		PythonSession.RowMetaAndRows result = session.rowsFromPythonDataFrameWithArrow("ArrowIn", false);
+		assertNotNull(result);
+		assertEquals(1, result.rows.length);
 	}
 }
