@@ -1,5 +1,7 @@
 package org.phalanxdev.python;
 
+import org.apache.arrow.memory.BufferAllocator;
+import org.apache.arrow.memory.RootAllocator;
 import org.apache.arrow.vector.FieldVector;
 import org.apache.arrow.vector.VectorSchemaRoot;
 import org.apache.arrow.vector.ipc.ArrowStreamWriter;
@@ -69,8 +71,9 @@ class ArrowUtilsTest { // Replace with your actual test class name
 				MockedStatic<VectorSchemaRoot> mockedRootStatic = mockStatic(VectorSchemaRoot.class);
 				MockedConstruction<ArrowStreamWriter> mockedWriter = mockConstruction(ArrowStreamWriter.class)) {
 
+			BufferAllocator allocator = new RootAllocator(Long.MAX_VALUE);
 			// Call the real method we are testing
-			mockedUtils.when(() -> ArrowUtils.rowsToArrow(eq(rowMeta), eq(rows))).thenCallRealMethod();
+			mockedUtils.when(() -> ArrowUtils.rowsToArrow(eq(rowMeta), eq(rows), eq(allocator))).thenCallRealMethod();
 
 			// Mock the internal static field/value mapping methods
 			mockedUtils.when(() -> ArrowUtils.createArrowField(valueMeta1)).thenReturn(dummyField1);
@@ -82,7 +85,7 @@ class ArrowUtilsTest { // Replace with your actual test class name
 			when(rootMock.getVector(1)).thenReturn(fieldVectorMock2);
 
 			// Act
-			byte[] result = ArrowUtils.rowsToArrow(rowMeta, rows);
+			byte[] result = ArrowUtils.rowsToArrow(rowMeta, rows, allocator);
 
 			// Assert
 			assertNotNull(result, "Resulting byte array should not be null");
@@ -123,7 +126,8 @@ class ArrowUtilsTest { // Replace with your actual test class name
 				MockedConstruction<ArrowStreamWriter> mockedWriter = mockConstruction(ArrowStreamWriter.class, (mock,
 						context) -> doThrow(new IOException("Simulated IO Stream Failure")).when(mock).start())) {
 
-			mockedUtils.when(() -> ArrowUtils.rowsToArrow(eq(rowMeta), eq(rows))).thenCallRealMethod();
+			BufferAllocator allocator = new RootAllocator(Long.MAX_VALUE);
+			mockedUtils.when(() -> ArrowUtils.rowsToArrow(eq(rowMeta), eq(rows), eq(allocator))).thenCallRealMethod();
 			mockedUtils.when(() -> ArrowUtils.createArrowField(valueMeta1)).thenReturn(dummyField1);
 
 			mockedRootStatic.when(() -> VectorSchemaRoot.create(any(Schema.class), any())).thenReturn(rootMock);
@@ -131,7 +135,7 @@ class ArrowUtilsTest { // Replace with your actual test class name
 
 			// Act & Assert
 			HopException exception = assertThrows(HopException.class, () -> {
-				ArrowUtils.rowsToArrow(rowMeta, rows);
+				ArrowUtils.rowsToArrow(rowMeta, rows, allocator);
 			});
 
 			// Verify the exception was properly caught and wrapped
