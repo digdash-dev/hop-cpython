@@ -23,7 +23,6 @@
 package org.phalanxdev.python;
 
 import org.apache.arrow.memory.BufferAllocator;
-import org.apache.arrow.memory.RootAllocator;
 import org.apache.arrow.vector.*;
 import org.apache.arrow.vector.ipc.ArrowStreamReader;
 import org.apache.arrow.vector.ipc.ArrowStreamWriter;
@@ -61,13 +60,10 @@ import java.time.LocalDateTime;
  */
 public class ArrowUtils {
 
-	// Shared buffer allocator
-	private static final BufferAllocator allocator = new RootAllocator(Long.MAX_VALUE);
-
 	/**
 	 * Convert Hop rows to Arrow format
 	 */
-	public static byte[] rowsToArrow(IRowMeta meta, List<Object[]> rows) throws HopException {
+	public static byte[] rowsToArrow(IRowMeta meta, List<Object[]> rows, BufferAllocator allocator) throws HopException {
 		// Create Arrow schema from Hop metadata
 		List<Field> fields = new ArrayList<>();
 		for (int i = 0; i < meta.size(); i++) {
@@ -110,7 +106,7 @@ public class ArrowUtils {
 	/**
 	 * Convert Arrow data to Hop rows
 	 */
-	public static PythonSession.RowMetaAndRows arrowToRows(byte[] arrowData) throws HopException {
+	public static PythonSession.RowMetaAndRows arrowToRows(byte[] arrowData, BufferAllocator allocator) throws HopException {
 		PythonSession.RowMetaAndRows result = new PythonSession.RowMetaAndRows();
 		List<Object[]> rowsList = new ArrayList<>();
 
@@ -213,18 +209,6 @@ public class ArrowUtils {
 			} else {
 				hopType = IValueMeta.TYPE_STRING;
 			}
-			// java version 21 seulement et hop java 17
-//			int hopType = switch (arrowType) {
-//			case ArrowType.Utf8 t -> IValueMeta.TYPE_STRING;
-//			case ArrowType.Int t -> IValueMeta.TYPE_INTEGER;
-//			case ArrowType.FloatingPoint t -> IValueMeta.TYPE_NUMBER;
-//			case ArrowType.Decimal t -> IValueMeta.TYPE_BIGNUMBER;
-//			case ArrowType.Date t -> IValueMeta.TYPE_DATE;
-//			case ArrowType.Timestamp t -> IValueMeta.TYPE_TIMESTAMP;
-//			case ArrowType.Bool t -> IValueMeta.TYPE_BOOLEAN;
-//			case ArrowType.Binary t -> IValueMeta.TYPE_BINARY;
-//			default -> IValueMeta.TYPE_STRING;
-//			};
 
 			IValueMeta valueMeta = ValueMetaFactory.createValueMeta(name, hopType);
 			rowMeta.addValueMeta(valueMeta);
@@ -320,12 +304,5 @@ public class ArrowUtils {
 		default:
 			return arrowObject.toString();
 		}
-	}
-
-	/**
-	 * Clean up Arrow resources
-	 */
-	public static void cleanup() {
-		allocator.close();
 	}
 }

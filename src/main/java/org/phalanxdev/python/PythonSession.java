@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.arrow.memory.BufferAllocator;
+import org.apache.arrow.memory.RootAllocator;
 import org.apache.commons.io.IOUtils;
 
 import java.awt.image.BufferedImage;
@@ -195,6 +197,8 @@ public class PythonSession {
 	 * Whether to use Arrow for data transfer (if available)
 	 */
 	protected boolean useArrow = true;
+	
+	private final BufferAllocator allocator;
 
 	/**
 	 * Acquire the session for the requester
@@ -520,6 +524,8 @@ public class PythonSession {
 	private PythonSession(String pythonCommand, String serverID, String pathEntries, boolean defaultServer,
 			ILogChannel log) throws IOException {
 
+		this.allocator = new RootAllocator(Long.MAX_VALUE);
+		
 		this.log = log;
 
 		if (log != null) {
@@ -1087,7 +1093,7 @@ public class PythonSession {
 				if (log != null && log.isDebug())
 					log.logDebug("sendrowstopandasdataframearrow with envname = " + envName);
 				ServerUtils.sendRowsToPandasDataFrameArrow(envName, log, rowMeta, rows, pythonFrameName,
-						localSocket.getOutputStream(), localSocket.getInputStream());
+						localSocket.getOutputStream(), localSocket.getInputStream(), allocator);
 			} else {
 				// Fall back to CSV
 				if (log != null && log.isDebug())
@@ -1123,7 +1129,7 @@ public class PythonSession {
 				if (log != null && log.isDebug())
 					log.logDebug("receiverowsfrompandasdataframearrow with envname = " + envName);
 				return ServerUtils.receiveRowsFromPandasDataFrameArrow(envName, log, frameName, includeRowIndex,
-						localSocket.getOutputStream(), localSocket.getInputStream());
+						localSocket.getOutputStream(), localSocket.getInputStream(), allocator);
 			} else {
 				// Fall back to CSV
 				if (log != null && log.isDebug())
@@ -1407,6 +1413,8 @@ public class PythonSession {
 				}
 				if (sessionKey != null)
 					pythonServers.remove(sessionKey);
+				if (allocator != null)
+					allocator.close();
 			}
 		}
 	}

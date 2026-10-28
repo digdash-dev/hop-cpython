@@ -24,6 +24,8 @@ package org.phalanxdev.python;
 
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
+
+import org.apache.arrow.memory.BufferAllocator;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -1302,7 +1304,7 @@ public class ServerUtils {
 	 * @throws HopException if a problem occurs
 	 */
 	protected static void sendRowsToPandasDataFrameArrow(String envName, ILogChannel log, IRowMeta meta,
-			List<Object[]> rows, String frameName, OutputStream outputStream, InputStream inputStream)
+			List<Object[]> rows, String frameName, OutputStream outputStream, InputStream inputStream, BufferAllocator allocator)
 			throws HopException {
 		ObjectMapper mapper = new ObjectMapper();
 
@@ -1335,7 +1337,7 @@ public class ServerUtils {
 						log.logDebug("Sending Arrow data...");
 					}
 
-					byte[] arrowData = ArrowUtils.rowsToArrow(meta, rows);
+					byte[] arrowData = ArrowUtils.rowsToArrow(meta, rows, allocator);
 					writeDelimitedToOutputStream(arrowData, outputStream);
 				}
 
@@ -1371,7 +1373,7 @@ public class ServerUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	protected static RowMetaAndRows receiveRowsFromPandasDataFrameArrow(String envName, ILogChannel log,
-			String frameName, boolean includeRowIndex, OutputStream outputStream, InputStream inputStream)
+			String frameName, boolean includeRowIndex, OutputStream outputStream, InputStream inputStream, BufferAllocator allocator)
 			throws HopException {
 
 		boolean debug = log == null || log.isDebug();
@@ -1415,7 +1417,7 @@ public class ServerUtils {
 				if ("arrow".equals(format)) {
 					// Read Arrow data
 					bytes = readDelimitedFromInputStream(inputStream);
-					result = ArrowUtils.arrowToRows(bytes);
+					result = ArrowUtils.arrowToRows(bytes, allocator);
 				} else {
 					throw new HopException("Expected Arrow format but received: " + format);
 				}
