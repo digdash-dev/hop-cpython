@@ -91,7 +91,7 @@ public class PythonSession {
 	 */
 	public static final String CPYTHON_COMMAND_ENV_VAR_KEY = "HOP_CPYTHON_COMMAND";
 
-	public static enum PythonVariableType {
+	public enum PythonVariableType {
 		DataFrame, Image, String, Unknown;
 	}
 
@@ -116,11 +116,9 @@ public class PythonSession {
 	 * Static map of initialized servers. A "default" entry will be used for
 	 * backward compatibility
 	 */
-	private static Map<String, PythonSession> pythonServers = Collections
-			.synchronizedMap(new HashMap<String, PythonSession>());
+	private static Map<String, PythonSession> pythonServers = Collections.synchronizedMap(new HashMap<>());
 
-	private static Map<String, String> pythonEnvCheckResults = Collections
-			.synchronizedMap(new HashMap<String, String>());
+	private static Map<String, String> pythonEnvCheckResults = Collections.synchronizedMap(new HashMap<>());
 
 	/**
 	 * The unique key for this session/server
@@ -197,7 +195,7 @@ public class PythonSession {
 	 * Whether to use Arrow for data transfer (if available)
 	 */
 	protected boolean useArrow = true;
-	
+
 	private final BufferAllocator allocator;
 
 	/**
@@ -469,25 +467,22 @@ public class PythonSession {
 		serverProcess = processBuilder.start();
 
 		// Start a thread to capture error output from the Python process
-		Thread errorReaderThread = new Thread() {
-			@Override
-			public void run() {
-				try {
-					BufferedReader errorReader = new BufferedReader(
-							new InputStreamReader(serverProcess.getErrorStream()));
-					String line;
-					while ((line = errorReader.readLine()) != null) {
-						if (log != null) {
-							log.logError("Python server error: " + line);
-						} else {
-							System.err.println("Python server error: " + line);
-						}
+		Thread errorReaderThread = new Thread(() -> {
+			try {
+				BufferedReader errorReader = new BufferedReader(new InputStreamReader(serverProcess.getErrorStream()));
+				String line;
+				while ((line = errorReader.readLine()) != null) {
+					if (log != null) {
+						log.logError("Python server error: " + line);
+					} else {
+						System.err.println("Python server error: " + line);
 					}
-				} catch (IOException e) {
-					// Process ended
 				}
+			} catch (IOException e) {
+				// Process ended
 			}
-		};
+		});
+
 		errorReaderThread.setDaemon(true);
 		errorReaderThread.start();
 
@@ -525,7 +520,7 @@ public class PythonSession {
 			ILogChannel log) throws IOException {
 
 		this.allocator = new RootAllocator(Long.MAX_VALUE);
-		
+
 		this.log = log;
 
 		if (log != null) {
@@ -711,25 +706,22 @@ public class PythonSession {
 			log.logBasic("Server socket created on port " + port + " with timeout 12000ms");
 		}
 
-		Thread acceptThread = new Thread() {
-			@Override
-			public void run() {
-				try {
-					if (log != null) {
-						log.logDebug("Waiting for Python server to connect on port " + port + "...");
-					}
-					localSocket = serverSocket.accept();
-					if (log != null) {
-						log.logBasic("Python server connected successfully");
-					}
-				} catch (IOException e) {
-					if (log != null) {
-						log.logError("Failed to accept connection from Python server: " + e.getMessage());
-					}
-					localSocket = null;
+		Thread acceptThread = new Thread(() -> {
+			try {
+				if (log != null) {
+					log.logDebug("Waiting for Python server to connect on port " + port + "...");
 				}
+				localSocket = serverSocket.accept();
+				if (log != null) {
+					log.logBasic("Python server connected successfully");
+				}
+			} catch (IOException e) {
+				if (log != null) {
+					log.logError("Failed to accept connection from Python server: " + e.getMessage());
+				}
+				localSocket = null;
 			}
-		};
+		});
 		acceptThread.start();
 
 		return acceptThread;
@@ -768,12 +760,9 @@ public class PythonSession {
 				}
 			}
 
-			shutdownHook = new Thread() {
-				@Override
-				public void run() {
-					shutdown();
-				}
-			};
+			shutdownHook = new Thread(() -> {
+				shutdown();
+			});
 			Runtime.getRuntime().addShutdownHook(shutdownHook);
 		}
 	}
@@ -816,25 +805,22 @@ public class PythonSession {
 			serverProcess = processBuilder.start();
 
 			// Start a thread to capture error output from the Python process
-			Thread errorReaderThread = new Thread() {
-				@Override
-				public void run() {
-					try {
-						BufferedReader errorReader = new BufferedReader(
-								new InputStreamReader(serverProcess.getErrorStream()));
-						String line;
-						while ((line = errorReader.readLine()) != null) {
-							if (log != null) {
-								log.logError("Python server error: " + line);
-							} else {
-								System.err.println("Python server error: " + line);
-							}
+			Thread errorReaderThread = new Thread(() -> {
+				try {
+					BufferedReader errorReader = new BufferedReader(
+							new InputStreamReader(serverProcess.getErrorStream()));
+					String line;
+					while ((line = errorReader.readLine()) != null) {
+						if (log != null) {
+							log.logError("Python server error: " + line);
+						} else {
+							System.err.println("Python server error: " + line);
 						}
-					} catch (IOException e) {
-						// Process ended
 					}
+				} catch (IOException e) {
+					// Process ended
 				}
-			};
+			});
 			errorReaderThread.setDaemon(true);
 			errorReaderThread.start();
 
@@ -1456,7 +1442,7 @@ public class PythonSession {
 			rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("Field6", IValueMeta.TYPE_TIMESTAMP));
 			rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("NullField", IValueMeta.TYPE_STRING));
 
-			List<Object[]> data = new ArrayList<Object[]>();
+			List<Object[]> data = new ArrayList<>();
 			data.add(rowData);
 			session.rowsToPythonDataFrame(rowMeta, data, "test");
 
